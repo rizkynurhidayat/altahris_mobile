@@ -38,7 +38,6 @@ dependencies:
   dartz: ^0.10.1
   shared_preferences: ^2.5.2
   lottie: ^3.1.2
-  dependencies:
   persistent_bottom_nav_bar_v2: ^6.3.2
 
   # The following adds the Cupertino Icons font to your application.
