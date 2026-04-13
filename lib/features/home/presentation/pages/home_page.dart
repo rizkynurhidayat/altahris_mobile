@@ -3,6 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/success_dialog.dart';
+import '../../../history/presentation/bloc/history_bloc.dart';
+import '../../../history/presentation/bloc/history_event.dart';
+import '../../../history/presentation/bloc/history_state.dart';
+import '../../../history/domain/entities/attendance.dart';
 
 class HomePage extends StatefulWidget {
   final String userName;
@@ -35,6 +41,9 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _selectedIndex = index;
           });
+          if (index == 3) {
+            context.read<HistoryBloc>().add(FetchAttendanceHistory());
+          }
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.orange[800],
@@ -54,6 +63,8 @@ class _HomePageState extends State<HomePage> {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
+      case 3:
+        return _buildHistoryTab();
       case 4:
         return _buildProfileTab();
       default:
@@ -83,6 +94,109 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           _buildMenuGrid(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryTab() {
+    return BlocBuilder<HistoryBloc, HistoryState>(
+      builder: (context, state) {
+        if (state is HistoryLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is HistoryLoaded) {
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: state.attendanceHistory.length,
+            itemBuilder: (context, index) {
+              final attendance = state.attendanceHistory[index];
+              return _buildHistoryCard(attendance);
+            },
+          );
+        } else if (state is HistoryFailure) {
+          return Center(child: Text('Error: ${state.message}'));
+        }
+        return const Center(child: Text('Belum ada riwayat'));
+      },
+    );
+  }
+
+  Widget _buildHistoryCard(Attendance attendance) {
+    Color statusColor;
+    switch (attendance.status?.toLowerCase()) {
+      case 'hadir':
+        statusColor = Colors.green;
+        break;
+      case 'sakit':
+        statusColor = Colors.blue;
+        break;
+      case 'izin':
+        statusColor = Colors.orange;
+        break;
+      default:
+        statusColor = Colors.red;
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  attendance.date ?? '-',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    attendance.status?.toUpperCase() ?? '-',
+                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Clock In', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(attendance.clockIn ?? '--:--', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Clock Out', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(attendance.clockOut ?? '--:--', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Lembur', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('${attendance.overtimeHours ?? 0} Jam', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -176,7 +290,13 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      SuccessDialog.show(
+                        context,
+                        title: 'Berhasil Clock In',
+                        message: 'Selamat bekerja! Jangan lupa istirahat.',
+                      );
+                    },
                     icon: const Icon(Icons.login),
                     label: const Text('CLOCK IN'),
                     style: ElevatedButton.styleFrom(
@@ -188,7 +308,13 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      SuccessDialog.show(
+                        context,
+                        title: 'Berhasil Clock Out',
+                        message: 'Hati-hati di jalan pulang!',
+                      );
+                    },
                     icon: const Icon(Icons.logout),
                     label: const Text('CLOCK OUT'),
                     style: ElevatedButton.styleFrom(

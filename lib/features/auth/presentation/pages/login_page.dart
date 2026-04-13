@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../bloc/auth_bloc.dart';
@@ -18,6 +20,33 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    final prefs = sl<SharedPreferences>();
+    final savedEmail = prefs.getString('remembered_email');
+    if (savedEmail != null) {
+      setState(() {
+        _emailController.text = savedEmail;
+        _rememberMe = true;
+      });
+    }
+  }
+
+  Future<void> _handleRememberMe() async {
+    final prefs = sl<SharedPreferences>();
+    if (_rememberMe) {
+      await prefs.setString('remembered_email', _emailController.text.trim());
+    } else {
+      await prefs.remove('remembered_email');
+    }
+  }
 
   @override
   void dispose() {
@@ -33,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
+            _handleRememberMe();
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (_) => HomePage(userName: state.user.email),
@@ -64,21 +94,21 @@ class _LoginPageState extends State<LoginPage> {
                     Image.asset('assets/logo/logo.png', width: 100),
                     const SizedBox(height: 24),
                     Center(
-                      child: const Text(
+                      child: Text(
                         'Welcome Back',
                         style: TextStyle(
                           fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimary,
                           letterSpacing: 1.2,
                         ),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Center(
-                      child: const Text(
+                      child: Text(
                         'Login to your account',
-                        style: TextStyle(fontSize: 16, color: AppColors.primary),
+                        style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -87,7 +117,6 @@ class _LoginPageState extends State<LoginPage> {
                       placeholder: 'Enter your email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email_outlined, size: 20),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
@@ -106,7 +135,6 @@ class _LoginPageState extends State<LoginPage> {
                       placeholder: 'Enter your password',
                       controller: _passwordController,
                       obscureText: true,
-                      prefixIcon: const Icon(Icons.lock_outline, size: 20),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your password';
@@ -114,7 +142,30 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: Checkbox(
+                            value: _rememberMe,
+                            activeColor: AppColors.primary,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Remember Me',
+                          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                     state is AuthLoading
                         ? const Center(child: CircularProgressIndicator())
                         : ElevatedButton(
