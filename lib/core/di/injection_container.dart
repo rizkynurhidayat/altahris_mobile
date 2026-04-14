@@ -1,3 +1,4 @@
+import 'package:altahris_mobile/features/home/data/datasources/home_remote_datasource.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
@@ -54,8 +55,12 @@ Future<void> init() async {
     () => AuthLocalDataSourceImpl(sl()),
   );
   sl.registerLazySingleton<HistoryRemoteDataSource>(
-    () => HistoryRemoteDataSourceImpl(),
+    () => HistoryRemoteDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(sl()),
+  );
+
 
   // Core
   sl.registerLazySingleton(() => DioClient().dio);

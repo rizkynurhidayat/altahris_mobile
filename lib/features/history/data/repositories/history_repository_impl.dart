@@ -10,9 +10,9 @@ class HistoryRepositoryImpl implements HistoryRepository {
   HistoryRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<Attendance>>> getAttendanceHistory() async {
+  Future<Either<Failure, List<Attendance>>> getAttendanceHistory(String id) async {
     try {
-      final remoteHistory = await remoteDataSource.getAttendanceHistory();
+      final remoteHistory = await remoteDataSource.getAttendanceHistory(id);
       return Right(remoteHistory);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

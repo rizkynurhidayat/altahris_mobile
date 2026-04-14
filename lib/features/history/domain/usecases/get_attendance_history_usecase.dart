@@ -8,7 +8,7 @@ class GetAttendanceHistoryUseCase {
 
   GetAttendanceHistoryUseCase(this.repository);
 
-  Future<Either<Failure, List<Attendance>>> execute() async {
-    return await repository.getAttendanceHistory();
+  Future<Either<Failure, List<Attendance>>> execute({required String id}) async {
+    return await repository.getAttendanceHistory(id);
   }
 }

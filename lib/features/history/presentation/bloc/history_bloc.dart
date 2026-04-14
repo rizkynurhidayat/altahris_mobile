@@ -15,7 +15,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     Emitter<HistoryState> emit,
   ) async {
     emit(HistoryLoading());
-    final result = await getAttendanceHistoryUseCase.execute();
+    final result = await getAttendanceHistoryUseCase.execute(id: '');
     result.fold(
       (failure) => emit(HistoryFailure(failure.message)),
       (history) => emit(HistoryLoaded(history)),

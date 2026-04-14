@@ -1,12 +1,18 @@
+import 'package:dio/dio.dart';
+
 import '../models/attendance_model.dart';
 
 abstract class HistoryRemoteDataSource {
-  Future<List<AttendanceModel>> getAttendanceHistory();
+  Future<List<AttendanceModel>> getAttendanceHistory(String id);
 }
 
 class HistoryRemoteDataSourceImpl implements HistoryRemoteDataSource {
+  final Dio dio;
+  
+  HistoryRemoteDataSourceImpl( this.dio);
+
   @override
-  Future<List<AttendanceModel>> getAttendanceHistory() async {
+  Future<List<AttendanceModel>> getAttendanceHistory(String id) async {
     // Simulated network delay
     await Future.delayed(const Duration(seconds: 1));
 
@@ -70,5 +76,38 @@ class HistoryRemoteDataSourceImpl implements HistoryRemoteDataSource {
     ];
 
     return dummyData.map((e) => AttendanceModel.fromJson(e)).toList();
+
+    /* 
+    // Implementasi API sesungguhnya (dimatikan sementara)
+    try {
+      final response = await dio.post(
+        '/attendances/$id',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final loginResponse = response.data['data'];
+        final token = loginResponse['access_token'];
+      
+
+        return UserModel.fromJson(userData);
+      } else {
+        throw ServerFailure(response.data['message'] ?? 'Login failed');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout || 
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const ConnectionFailure('Connection timed out');
+      }
+      
+      final message = e.response?.data['message'] ?? e.message ?? 'Server error';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+    */
   }
 }

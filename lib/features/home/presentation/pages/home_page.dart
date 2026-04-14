@@ -31,17 +31,17 @@ class _HomePageState extends State<HomePage> {
         PersistentTabConfig(
           screen: DashboardPage(userName: widget.userName),
           item: ItemConfig(
-            icon: const Icon(Icons.home),
+            icon: const Icon(Icons.home_outlined),
             title: "Home",
             activeForegroundColor: Colors.orange[800]!,
             inactiveForegroundColor: Colors.grey,
           ),
         ),
         PersistentTabConfig(
-          screen: const GajiPage(),
+          screen: const GajiPage(), // Placeholder for Notification
           item: ItemConfig(
-            icon: const Icon(Icons.payments),
-            title: "Gaji",
+            icon: const Icon(Icons.notifications_none_outlined),
+            title: "Notification",
             activeForegroundColor: Colors.orange[800]!,
             inactiveForegroundColor: Colors.grey,
           ),
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
             );
           },
           item: ItemConfig(
-            icon: const Icon(Icons.login_rounded, size: 25, color: AppColors.surface,),
+            icon: const Icon(Icons.login_rounded, size: 28, color: Colors.white),
             title: "Clock In",
             activeForegroundColor: Colors.orange[800]!,
             inactiveForegroundColor: Colors.grey,
@@ -64,18 +64,17 @@ class _HomePageState extends State<HomePage> {
         PersistentTabConfig(
           screen: const HistoryPage(),
           item: ItemConfig(
-            icon: const Icon(Icons.history),
-            title: "Riwayat",
+            icon: const Icon(Icons.notifications_none_outlined), // Placeholder icon for Activity
+            title: "Activity",
             activeForegroundColor: Colors.orange[800]!,
             inactiveForegroundColor: Colors.grey,
           ),
-         
         ),
         PersistentTabConfig(
           screen: ProfilePage(userName: widget.userName),
           item: ItemConfig(
-            icon: const Icon(Icons.person),
-            title: "Profile",
+            icon: const Icon(Icons.person_outline),
+            title: "Account",
             activeForegroundColor: Colors.orange[800]!,
             inactiveForegroundColor: Colors.grey,
           ),
