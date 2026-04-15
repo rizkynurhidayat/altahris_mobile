@@ -5,7 +5,7 @@ import '../models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> getUserById(String token, String id);
-  Future<void> logout();
+  Future<void> logout(String token);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -62,13 +62,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> logout() async {
+  Future<void> logout(String token) async {
     // TODO: implement logout
     /* 
     // Implementasi API sesungguhnya (dimatikan sementara)
     try {
       final response = await dio.post(
-        '/auth/logout',
+        '/auth/logout', options: Options(headers: {
+          'Authorization': 'Bearer $token'
+        })
       );
 
       if (response.statusCode == 200) {

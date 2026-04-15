@@ -3,5 +3,5 @@ import '../../../../core/error/failures.dart';
 import '../entities/attendance.dart';
 
 abstract class HistoryRepository {
-  Future<Either<Failure, List<Attendance>>> getAttendanceHistory();
+  Future<Either<Failure, List<Attendance>>> getAttendanceHistory(String id);
 }
