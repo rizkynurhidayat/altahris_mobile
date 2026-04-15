@@ -96,15 +96,8 @@ class _LoginPageState extends State<LoginPage> {
         image: DecorationImage(
           image: AssetImage('assets/img/header_bg.png'),
           fit: BoxFit.cover,
+          alignment: Alignment.centerLeft,
         ),
-        // gradient: LinearGradient(
-        //   begin: Alignment.topCenter,
-        //   end: Alignment.bottomCenter,
-        //   colors: [
-        //     Color(0xFFFF9800),
-        //     Color(0xFFFF6D00),
-        //   ],
-        // ),
       ),
       child: SafeArea(
         bottom: false,
@@ -129,15 +122,14 @@ class _LoginPageState extends State<LoginPage> {
               'Your Friendly HRIS',
               style: TextStyle(color: Colors.white70, fontSize: 16),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
             // Illustration placeholder - using logo or a generic icon if specific img not found
             Image.asset(
               'assets/img/login_img.png',
-              width: 380,
-              // size: 180,
-              // color: Colors.white24,
+              scale: 3.8,
+              
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 60),
           ],
         ),
       ),
@@ -185,13 +177,17 @@ class _LoginPageState extends State<LoginPage> {
                 placeholder: 'budi@alta.co.id',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                // validator: (value) {
-                //   if (value == null || value.isEmpty)
-                //     return 'Please enter email';
-                //   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
-                //     return 'Please enter a valid email';
-                //   return '';
-                // },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 20),
@@ -200,6 +196,11 @@ class _LoginPageState extends State<LoginPage> {
                 placeholder: 'Enter your password',
                 controller: _passwordController,
                 obscureText: true,
+                validator: (value){
+                    if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                },
               ),
               const SizedBox(height: 16),
               Row(

@@ -35,7 +35,7 @@ class ProfilePage extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () {
                 context.read<AuthBloc>().add(LogoutRequested());
-                Navigator.of(context).pushAndRemoveUntil(
+                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginPage()),
                   (route) => false,
                 );
