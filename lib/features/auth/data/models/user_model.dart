@@ -44,4 +44,6 @@ class UserModel extends User {
       'updated_at': updatedAt,
     };
   }
+
+  
 }

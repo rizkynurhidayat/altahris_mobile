@@ -79,10 +79,32 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [_buildHeader(), _buildLoginForm(context, state)],
-            ),
+          return Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _buildHeader(),
+              ),
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Invisible header to maintain spacing for the scrolling content
+                      Visibility(
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        visible: false,
+                        child: _buildHeader(),
+                      ),
+                      _buildLoginForm(context, state),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -267,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
             ],
           ),
         ),
