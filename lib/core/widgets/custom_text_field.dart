@@ -10,6 +10,8 @@ class CustomTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
   final Widget? prefixIcon;
+  final int? maxLines;
+  final bool? enable;
 
   const CustomTextField({
     super.key,
@@ -21,6 +23,8 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
+    this.maxLines,
+    this.enable,
   });
 
   @override
@@ -74,9 +78,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
         const SizedBox(height: 8),
         TextFormField(
           focusNode: _focusNode,
+          enabled: widget.enable ,
           controller: widget.controller,
           obscureText: _obscureText,
           keyboardType: widget.keyboardType,
+          maxLines: widget.maxLines ,
           validator: (value) {
             final error = widget.validator?.call(value);
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,6 +116,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 : null,
             filled: true,
             fillColor: fillColor,
+            
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 12,
@@ -138,6 +145,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             // Hide default error text as we'll build our own
             errorStyle: const TextStyle(height: 0, fontSize: 0),
             floatingLabelBehavior: FloatingLabelBehavior.never,
+            
           ),
         ),
         // Custom Error or Helper Text

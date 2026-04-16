@@ -1,67 +1,25 @@
-import 'package:altahris_mobile/features/home/data/datasources/home_remote_datasource.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../features/auth/data/datasources/auth_local_data_source.dart';
-import '../../features/auth/data/datasources/auth_remote_data_source.dart';
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/auth/domain/usecases/login_usecase.dart';
-import '../../features/auth/presentation/bloc/auth_bloc.dart';
-import '../../features/history/data/datasources/history_remote_data_source.dart';
-import '../../features/history/data/repositories/history_repository_impl.dart';
-import '../../features/history/domain/repositories/history_repository.dart';
-import '../../features/history/domain/usecases/get_attendance_history_usecase.dart';
-import '../../features/history/presentation/bloc/history_bloc.dart';
-import '../network/dio_client.dart';
+import 'package:altahris_mobile/core/di/core_injector.dart';
+import 'package:altahris_mobile/features/auth/auth_injector.dart';
+import 'package:altahris_mobile/features/attendance/attendance_injector.dart';
+import 'package:altahris_mobile/features/home/home_injector.dart';
+import 'package:altahris_mobile/features/payslip/payslip_injector.dart';
+import 'package:altahris_mobile/features/leave/leave_injector.dart';
 
 final sl = GetIt.instance;
 
+/// Main Dependency Injection Initialization
+///
+/// This function initializes all the core and feature-specific
+/// dependencies. It is called at the start of the application.
 Future<void> init() async {
-  // External
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
+  // Core dependencies (Shared)
+  await initCore(sl);
 
-  // BLoC
-  sl.registerFactory(() => AuthBloc(
-        loginUseCase: sl(),
-        repository: sl(),
-      ));
-  sl.registerFactory(() => HistoryBloc(
-        getAttendanceHistoryUseCase: sl(),
-      ));
-
-  // Use Cases
-  sl.registerLazySingleton(() => LoginUseCase(sl()));
-  sl.registerLazySingleton(() => GetAttendanceHistoryUseCase(sl()));
-
-  // Repositories
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
-  );
-  sl.registerLazySingleton<HistoryRepository>(
-    () => HistoryRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  // Data Sources
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<HistoryRemoteDataSource>(
-    () => HistoryRemoteDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<HomeRemoteDataSource>(
-    () => HomeRemoteDataSourceImpl(sl()),
-  );
-
-
-  // Core
-  sl.registerLazySingleton(() => DioClient().dio);
+  // Feature dependencies
+  initAuth(sl);
+  initHistory(sl);
+  initHome(sl);
+  initPayslip(sl);
+  initLeave(sl);
 }

@@ -1,9 +1,16 @@
+import 'package:altahris_mobile/features/attendance/presentation/pages/attendance_page.dart';
+import 'package:altahris_mobile/features/auth/domain/entities/user.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Company.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Departement.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Position.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Shift.dart';
+import 'package:altahris_mobile/features/leave/presentation/pages/leave_page.dart';
 import 'package:altahris_mobile/features/payslip/presentation/pages/payslip_page.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/attandance_list_tile.dart';
-import '../../../history/domain/entities/attendance.dart';
-// import '../../../../core/widgets/success_dialog.dart';
+import 'package:altahris_mobile/core/theme/app_colors.dart';
+import 'package:altahris_mobile/core/widgets/index.dart';
+import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
 
 class DashboardPage extends StatelessWidget {
   final String userName;
@@ -45,13 +52,7 @@ class DashboardPage extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 32),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              // borderRadius: BorderRadius.only(
-              //   topLeft: Radius.circular(15),
-              //   topRight: Radius.circular(15),
-              // ),
-            ),
+            decoration: const BoxDecoration(color: Colors.white),
             child: Column(
               children: [
                 const SizedBox(height: 120), // Space for bottom nav
@@ -64,42 +65,15 @@ class DashboardPage extends StatelessWidget {
           ),
           Transform.translate(
             offset: const Offset(0, -70),
-
             child: _buildAttendanceSummaryCard(context),
           ),
         ],
       ),
-
-      // child: Column(
-      //   children: [
-      //     _buildAttendanceSummaryCard(context),
-      //     SizedBox(height: 20),
-      //     Container(
-      //       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      //       decoration: const BoxDecoration(
-      //         color: Colors.white,
-      //         borderRadius: BorderRadius.only(
-      //           topLeft: Radius.circular(32),
-      //           topRight: Radius.circular(32),
-      //         ),
-      //       ),
-      //       child: Column(
-      //         children: [
-      //           _buildQuickActions(),
-      //           const SizedBox(height: 24),
-      //           _buildAttendanceList(context),
-      //           const SizedBox(height: 100), // Space for bottom nav
-      //         ],
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      // height: 380,
       width: double.infinity,
       decoration: const BoxDecoration(
         image: DecorationImage(
@@ -186,12 +160,12 @@ class DashboardPage extends StatelessWidget {
           const Text(
             'Monday, 13 April 2026',
             style: TextStyle(
-              color: Colors.grey,
+              color: AppColors.textSecondary,
               fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 12, ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -199,12 +173,12 @@ class DashboardPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.primaryLight),
             ),
-            child: Text(
+            child: const Text(
               'Regular Shift (08:00-17:00)',
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),
@@ -223,45 +197,39 @@ class DashboardPage extends StatelessWidget {
 
   Widget _buildTimeBox(String label, String time, Color color) {
     return Container(
-      // padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    bottomLeft: Radius.circular(12),
-                  ),
-                ),
+          Container(
+            width: 4,
+            height: 70,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
               ),
-
-              const SizedBox(width: 10),
-              Column(
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(color: Colors.grey, fontSize: 11),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    time,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(color: Colors.grey, fontSize: 11),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                time,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ],
           ),
@@ -276,8 +244,18 @@ class DashboardPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildActionItem('assets/icon/attandance.png', 'Attendance', null),
-          _buildActionItem('assets/icon/leave.png', 'Leave', null),
+          _buildActionItem('assets/icon/attandance.png', 'Attendance', () {
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).push(MaterialPageRoute(builder: (_) => const AttendancePage()));
+          }),
+          _buildActionItem('assets/icon/leave.png', 'Leave', () {
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).push(MaterialPageRoute(builder: (_) => const LeavePage()));
+          }),
           _buildActionItem('assets/icon/payslip.png', 'Payslip', () {
             Navigator.of(
               context,
@@ -315,16 +293,104 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildAttendanceList(BuildContext context) {
+    const dummyCompany = Company(
+      address: '',
+      createdAt: '',
+      email: '',
+      id: '',
+      isActive: true,
+      logo: '',
+      name: 'Dummy Co',
+      npwp: '',
+      phone: '',
+      updatedAt: '',
+    );
+    const dummyDept = Department(
+      company: dummyCompany,
+      companyId: '',
+      createdAt: '',
+      description: '',
+      id: '',
+      isActive: true,
+      name: 'IT',
+      updatedAt: '',
+    );
+    const dummyPos = Position(
+      baseSalary: 0,
+      company: dummyCompany,
+      companyId: '',
+      createdAt: '',
+      department: dummyDept,
+      departmentId: '',
+      id: '',
+      isActive: true,
+      name: 'Staff',
+      updatedAt: '',
+    );
+    const dummyShift = Shift(
+      company: dummyCompany,
+      companyId: '',
+      createdAt: '',
+      endTime: '17:00',
+      id: '',
+      isActive: true,
+      name: 'Regular',
+      startTime: '08:00',
+      updatedAt: '',
+    );
+    const dummyUser = User(id: '1', email: 'test@mail.com', name: 'Test User');
+    const dummyEmployee = Employee(
+      bankAccount: '',
+      bankName: '',
+      birthDate: '',
+      birthPlace: '',
+      bloodType: '',
+      bpjsKesNo: '',
+      bpjsTkNo: '',
+      company: dummyCompany,
+      companyId: '',
+      createdAt: '',
+      department: dummyDept,
+      departmentId: '',
+      employeeNumber: '12345',
+      employeeStatus: 'Active',
+      gender: 'Male',
+      id: '1',
+      joinDate: '',
+      lastEducation: '',
+      maritalStatus: '',
+      nik: '',
+      npwp: '',
+      position: dummyPos,
+      positionId: '',
+      religion: '',
+      resignDate: '',
+      shift: dummyShift,
+      shiftId: '',
+      updatedAt: '',
+      user: dummyUser,
+      userId: '1',
+    );
+
     final list = List<Attendance>.generate(
       5,
       (index) => Attendance(
         id: "$index",
-        clockIn: "${DateTime.now().hour}:${DateTime.now().minute}",
-        clockOut: "${DateTime.now().hour + 8}:${DateTime.now().minute}",
+        clockIn: "07:00",
+        clockOut: "17:00",
         date: "Monday, 13 April 2026",
         status: "Present",
+        createdAt: "2026-04-13T08:00:00Z",
+        updatedAt: "2026-04-13T08:00:00Z",
+        employee: dummyEmployee,
+        employeeId: dummyEmployee.id,
+        notes: "Healthy",
+        overtimeHours: 0,
+        shift: dummyShift,
+        shiftId: dummyShift.id,
       ),
-    ).toList(); // Placeholder for attendance data
+    ).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -351,7 +417,7 @@ class DashboardPage extends StatelessWidget {
           const SizedBox(height: 12),
           Column(
             children: list
-                .map((e) => AttedanceListTile(attandance: e))
+                .map((e) => AttendanceListTile(attendance: e))
                 .toList(),
           ),
         ],
