@@ -60,7 +60,7 @@ class _SplashPageState extends State<SplashPage>
       _isNavigated = true;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomePage(userName: state.user.email),
+          builder: (_) => HomePage(user: state.user),
         ),
       );
     } else if (state is AuthUnauthenticated || state is AuthFailure) {

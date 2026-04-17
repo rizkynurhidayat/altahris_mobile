@@ -43,6 +43,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    await localDataSource.clearCache();
+    try {
+      final user = await localDataSource.getCachedUser();
+      if (user != null && user.token != null) {
+        await remoteDataSource.logout(user.token!);
+      }
+    } catch (_) {
+      // Even if remote logout fails, we proceed to clear local cache
+    } finally {
+      await localDataSource.clearCache();
+    }
   }
 }

@@ -13,9 +13,9 @@ import 'package:altahris_mobile/core/widgets/index.dart';
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
 
 class DashboardPage extends StatefulWidget {
-  final String userName;
+  final User user;
 
-  const DashboardPage({super.key, required this.userName});
+  const DashboardPage({super.key, required this.user});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -142,16 +142,16 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 15),
             Text(
-              widget.userName,
+              widget.user.name,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Text(
-              'Fullstack Developer',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            Text(
+              widget.user.role ?? '-',
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),

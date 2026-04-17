@@ -1,23 +1,27 @@
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/features/home/presentation/pages/activity_page.dart';
-import 'package:altahris_mobile/features/home/presentation/pages/notification_page.dart';
+import 'package:altahris_mobile/features/notification/presentation/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../../core/widgets/success_dialog.dart';
 import 'dashboard_page.dart';
 import 'profile_page.dart';
 
-class HomePage extends StatefulWidget {
-  final String userName;
+import 'package:altahris_mobile/features/auth/domain/entities/user.dart';
 
-  const HomePage({super.key, required this.userName});
+class HomePage extends StatefulWidget {
+  final User user;
+
+  const HomePage({super.key, required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final PersistentTabController _controller = PersistentTabController(initialIndex: 0);
+  final PersistentTabController _controller = PersistentTabController(
+    initialIndex: 0,
+  );
   bool _isClockedIn = false;
 
   void _onClockButtonPressed(BuildContext context) {
@@ -47,7 +51,7 @@ class _HomePageState extends State<HomePage> {
       navBarOverlap: NavBarOverlap.full(),
       tabs: [
         PersistentTabConfig(
-          screen: DashboardPage(userName: widget.userName),
+          screen: DashboardPage(user: widget.user),
           item: ItemConfig(
             icon: const ImageIcon(AssetImage('assets/icon/home.png')),
             title: "Home",
@@ -55,15 +59,17 @@ class _HomePageState extends State<HomePage> {
             inactiveForegroundColor: Colors.grey,
           ),
         ),
+
         PersistentTabConfig(
-          screen: const NotificationPage(),
+          screen: NotificationPage(),
           item: ItemConfig(
             icon: const ImageIcon(AssetImage('assets/icon/bell.png')),
-            title: "notification",
+            title: "Notifications",
             activeForegroundColor: AppColors.primary,
             inactiveForegroundColor: Colors.grey,
           ),
         ),
+
         PersistentTabConfig.noScreen(
           onPressed: _onClockButtonPressed,
           item: ItemConfig(
@@ -73,24 +79,32 @@ class _HomePageState extends State<HomePage> {
                 color: _isClockedIn ? AppColors.primary : AppColors.succesGreen,
                 shape: BoxShape.circle,
               ),
-              child: Icon(_isClockedIn ? Icons.logout_rounded : Icons.login_rounded, color: Colors.white)),
+              child: Icon(
+                _isClockedIn ? Icons.logout_rounded : Icons.login_rounded,
+                color: Colors.white,
+              ),
+            ),
             // title: "Clock In",
-            activeForegroundColor: _isClockedIn ? Colors.orange.shade900 : Colors.green.shade500,
+            activeForegroundColor: _isClockedIn
+                ? Colors.orange.shade900
+                : Colors.green.shade500,
             inactiveForegroundColor: Colors.grey,
-            iconSize: 35
+            iconSize: 35,
           ),
         ),
         PersistentTabConfig(
           screen: const ActivityPage(),
           item: ItemConfig(
-            icon: const ImageIcon(AssetImage('assets/icon/clipboard.png')), // Placeholder icon for Activity
+            icon: const ImageIcon(
+              AssetImage('assets/icon/clipboard.png'),
+            ), // Placeholder icon for Activity
             title: "Activity",
             activeForegroundColor: AppColors.primary,
             inactiveForegroundColor: Colors.grey,
           ),
         ),
         PersistentTabConfig(
-          screen: ProfilePage(userName: widget.userName),
+          screen: ProfilePage(userName: widget.user.name),
           item: ItemConfig(
             icon: const ImageIcon(AssetImage('assets/icon/user.png')),
             title: "Account",
@@ -103,7 +117,6 @@ class _HomePageState extends State<HomePage> {
         navBarConfig: navBarConfig,
         height: 70,
         middleItemSize: 70,
-       
       ),
     );
   }
