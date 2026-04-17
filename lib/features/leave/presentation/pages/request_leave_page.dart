@@ -75,19 +75,19 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
         context,
         onConfirm: () {
           // Prepare data according to requestdata.json
-          final data = {
-            "attachment": "",
-            "employee_id": "EMP001", // Placeholder
-            "end_date": _endDate != null
-                ? DateFormat('yyyy-MM-dd').format(_endDate!)
-                : "",
-            "leave_type": _selectedLeaveType,
-            "reason": _reasonController.text,
-            "start_date": _startDate != null
-                ? DateFormat('yyyy-MM-dd').format(_startDate!)
-                : "",
-            "total_days": int.tryParse(_totalDaysController.text) ?? 0,
-          };
+          // final data = {
+          //   "attachment": "",
+          //   "employee_id": "EMP001", // Placeholder
+          //   "end_date": _endDate != null
+          //       ? DateFormat('yyyy-MM-dd').format(_endDate!)
+          //       : "",
+          //   "leave_type": _selectedLeaveType,
+          //   "reason": _reasonController.text,
+          //   "start_date": _startDate != null
+          //       ? DateFormat('yyyy-MM-dd').format(_startDate!)
+          //       : "",
+          //   "total_days": int.tryParse(_totalDaysController.text) ?? 0,
+          // };
 
           // Show success dialog
           SuccessDialog.show(

@@ -12,35 +12,55 @@ import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/widgets/index.dart';
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   final String userName;
 
   const DashboardPage({super.key, required this.userName});
 
   @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  Future<void> _onRefresh() async {
+    // Simulate a delay for refreshing data
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
+      setState(() {
+        // You can update the data here if needed in the future
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Positioned(top: 0, left: 0, right: 0, child: _buildHeader(context)),
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Visibility(
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    visible: false,
-                    child: _buildHeader(context),
-                  ),
-                  _buildScroll(context),
-                ],
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: AppColors.primary,
+        child: Stack(
+          children: [
+            Positioned(top: 0, left: 0, right: 0, child: _buildHeader(context)),
+            Positioned.fill(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    Visibility(
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      visible: false,
+                      child: _buildHeader(context),
+                    ),
+                    _buildScroll(context),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -122,7 +142,7 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             Text(
-              userName,
+              widget.userName,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -165,7 +185,7 @@ class DashboardPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 12, ),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(

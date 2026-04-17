@@ -23,7 +23,7 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
-    this.maxLines,
+    this.maxLines = 1,
     this.enable,
   });
 
