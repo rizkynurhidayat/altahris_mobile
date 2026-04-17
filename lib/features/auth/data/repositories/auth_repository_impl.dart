@@ -4,7 +4,6 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
-import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -23,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = await remoteDataSource.login(email, password);
       // Cache user on successful login
-      await localDataSource.cacheUser(user as UserModel);
+      await localDataSource.cacheUser(user);
       return Right(user);
     } on Failure catch (e) {
       return Left(e);

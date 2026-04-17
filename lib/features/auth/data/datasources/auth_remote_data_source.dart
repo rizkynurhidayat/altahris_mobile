@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../../../core/error/failures.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {

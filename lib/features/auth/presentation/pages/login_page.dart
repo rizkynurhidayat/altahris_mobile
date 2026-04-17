@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -21,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _rememberMe = false;
-  bool _obscurePassword = true;
+  // bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -81,12 +80,7 @@ class _LoginPageState extends State<LoginPage> {
         builder: (context, state) {
           return Stack(
             children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: _buildHeader(),
-              ),
+              Positioned(top: 0, left: 0, right: 0, child: _buildHeader()),
               Positioned.fill(
                 child: SingleChildScrollView(
                   child: Column(
@@ -146,11 +140,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 30),
             // Illustration placeholder - using logo or a generic icon if specific img not found
-            Image.asset(
-              'assets/img/login_img.png',
-              scale: 3.8,
-              
-            ),
+            Image.asset('assets/img/login_img.png', scale: 3.8),
             const SizedBox(height: 60),
           ],
         ),
@@ -218,10 +208,11 @@ class _LoginPageState extends State<LoginPage> {
                 placeholder: 'Enter your password',
                 controller: _passwordController,
                 obscureText: true,
-                validator: (value){
-                    if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return '';
                 },
               ),
               const SizedBox(height: 16),

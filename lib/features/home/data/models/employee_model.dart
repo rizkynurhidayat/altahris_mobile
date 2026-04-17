@@ -1,0 +1,111 @@
+import 'package:altahris_mobile/features/auth/data/models/user_model.dart';
+import '../../domain/entities/Employee.dart';
+import 'company_model.dart';
+import 'department_model.dart';
+import 'position_model.dart';
+import 'shift_model.dart';
+
+class EmployeeModel extends Employee {
+  const EmployeeModel({
+    required super.bankAccount,
+    required super.bankName,
+    required super.birthDate,
+    required super.birthPlace,
+    required super.bloodType,
+    required super.bpjsKesNo,
+    required super.bpjsTkNo,
+    required super.company,
+    required super.companyId,
+    required super.createdAt,
+    required super.department,
+    required super.departmentId,
+    required super.employeeNumber,
+    required super.employeeStatus,
+    required super.gender,
+    required super.id,
+    required super.joinDate,
+    required super.lastEducation,
+    required super.maritalStatus,
+    required super.nik,
+    required super.npwp,
+    required super.position,
+    required super.positionId,
+    required super.religion,
+    required super.resignDate,
+    required super.shift,
+    required super.shiftId,
+    required super.updatedAt,
+    required super.user,
+    required super.userId,
+  });
+
+  factory EmployeeModel.fromJson(Map<String, dynamic> json) {
+    return EmployeeModel(
+      bankAccount: json['bank_account'] ?? '',
+      bankName: json['bank_name'] ?? '',
+      birthDate: json['birth_date'] ?? '',
+      birthPlace: json['birth_place'] ?? '',
+      bloodType: json['blood_type'] ?? '',
+      bpjsKesNo: json['bpjs_kes_no'] ?? '',
+      bpjsTkNo: json['bpjs_tk_no'] ?? '',
+      company: CompanyModel.fromJson(json['company'] ?? {}),
+      companyId: json['company_id'] ?? '',
+      createdAt: json['created_at'] ?? '',
+      department: DepartmentModel.fromJson(json['department'] ?? {}),
+      departmentId: json['department_id'] ?? '',
+      employeeNumber: json['employee_number'] ?? '',
+      employeeStatus: json['employee_status'] ?? '',
+      gender: json['gender'] ?? '',
+      id: json['id'] ?? '',
+      joinDate: json['join_date'] ?? '',
+      lastEducation: json['last_education'] ?? '',
+      maritalStatus: json['marital_status'] ?? '',
+      nik: json['nik'] ?? '',
+      npwp: json['npwp'] ?? '',
+      position: PositionModel.fromJson(json['position'] ?? {}),
+      positionId: json['position_id'] ?? '',
+      religion: json['religion'] ?? '',
+      resignDate: json['resign_date'] ?? '',
+      shift: ShiftModel.fromJson(json['shift'] ?? {}),
+      shiftId: json['shift_id'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
+      user: UserModel.fromJson(json['user'] ?? {}),
+      userId: json['user_id'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'bank_account': bankAccount,
+      'bank_name': bankName,
+      'birth_date': birthDate,
+      'birth_place': birthPlace,
+      'blood_type': bloodType,
+      'bpjs_kes_no': bpjsKesNo,
+      'bpjs_tk_no': bpjsTkNo,
+      'company': (company as CompanyModel).toJson(),
+      'company_id': companyId,
+      'created_at': createdAt,
+      'department': (department as DepartmentModel).toJson(),
+      'department_id': departmentId,
+      'employee_number': employeeNumber,
+      'employee_status': employeeStatus,
+      'gender': gender,
+      'id': id,
+      'join_date': joinDate,
+      'last_education': lastEducation,
+      'marital_status': maritalStatus,
+      'nik': nik,
+      'npwp': npwp,
+      'position': (position as PositionModel).toJson(),
+      'position_id': positionId,
+      'religion': religion,
+      'resign_date': resignDate,
+      'shift': (shift as ShiftModel).toJson(),
+      'shift_id': shiftId,
+      'updated_at': updatedAt,
+      'user': (user as UserModel).toJson(),
+      'user_id': userId,
+    };
+  }
+}

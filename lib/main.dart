@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'core/di/injection_container.dart' as di;
-import 'core/di/injection_container.dart';
-import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/bloc/auth_event.dart';
-import 'features/auth/presentation/pages/splash_page.dart';
-import 'features/history/presentation/bloc/history_bloc.dart';
+import 'package:altahris_mobile/core/di/injection_container.dart' as di;
+import 'package:altahris_mobile/core/di/injection_container.dart' show sl;
+import 'package:altahris_mobile/core/theme/app_theme.dart';
+import 'package:altahris_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:altahris_mobile/features/auth/presentation/bloc/auth_event.dart';
+import 'package:altahris_mobile/features/auth/presentation/pages/splash_page.dart';
+import 'package:altahris_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:altahris_mobile/features/leave/presentation/bloc/leave_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Dependency Injection
   await di.init();
+  
   runApp(const MyApp());
 }
 
@@ -25,7 +29,10 @@ class MyApp extends StatelessWidget {
           create: (context) => sl<AuthBloc>()..add(AppStarted()),
         ),
         BlocProvider(
-          create: (context) => sl<HistoryBloc>(),
+          create: (context) => sl<AttendanceBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => sl<LeaveBloc>(),
         ),
       ],
       child: MaterialApp(
