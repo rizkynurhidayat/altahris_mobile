@@ -16,7 +16,8 @@ class AttendanceListTile extends StatelessWidget {
     }
     try {
       // Try parsing as ISO8601 first
-      final dateTime = DateTime.parse(timeStr);
+      // The API provides UTC, so we convert it to local time
+      final dateTime = DateTime.parse(timeStr).toLocal();
       return DateFormat('HH:mm').format(dateTime);
     } catch (e) {
       // If it's already HH:mm:ss or similar, try parsing that
