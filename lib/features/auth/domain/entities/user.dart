@@ -11,6 +11,7 @@ class User extends Equatable {
   final String? createdAt;
   final String? updatedAt;
   final String? token;
+  final String? refreshToken;
 
   const User({
     required this.id,
@@ -23,8 +24,37 @@ class User extends Equatable {
     this.role,
     this.updatedAt,
     this.token,
+    this.refreshToken,
   });
 
+  User copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? phone,
+    String? address,
+    String? role,
+    bool? isActive,
+    String? createdAt,
+    String? updatedAt,
+    String? token,
+    String? refreshToken,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      role: role ?? this.role,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      token: token ?? this.token,
+      refreshToken: refreshToken ?? this.refreshToken,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, email, name, token, phone, address, role, isActive, createdAt, updatedAt];
+  List<Object?> get props => [id, email, name, token, refreshToken, phone, address, role, isActive, createdAt, updatedAt];
 }

@@ -29,3 +29,5 @@ class LeaveFailure extends LeaveState {
   @override
   List<Object?> get props => [message];
 }
+
+class LeaveRequestSuccess extends LeaveState {}

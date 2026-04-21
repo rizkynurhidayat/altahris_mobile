@@ -15,7 +15,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     Emitter<AttendanceState> emit,
   ) async {
     emit(AttendanceLoading());
-    final result = await getAttendanceHistoryUseCase.execute(id: '');
+    final result = await getAttendanceHistoryUseCase.execute();
     result.fold(
       (failure) => emit(AttendanceFailure(failure.message)),
       (history) => emit(AttendanceLoaded(history)),

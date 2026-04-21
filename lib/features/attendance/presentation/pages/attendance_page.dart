@@ -50,7 +50,7 @@ class AttendancePageState extends State<AttendancePage> {
                 },
                 child: const Stack(
                   children: [
-                    Center(child: Text('Belum ada riwayat')),
+                    Center(child: Text('No Attendance Data')),
                   ],
                 ),
               );

@@ -8,7 +8,7 @@ class GetAttendanceUseCase {
 
   GetAttendanceUseCase(this.repository);
 
-  Future<Either<Failure, List<Attendance>>> execute({required String id}) async {
-    return await repository.getAttendance(id);
+  Future<Either<Failure, List<Attendance>>> execute() async {
+    return await repository.getAttendance();
   }
 }

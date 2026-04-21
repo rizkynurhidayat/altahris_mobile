@@ -8,10 +8,17 @@ abstract class LeaveEvent extends Equatable {
 }
 
 class FetchLeaveHistory extends LeaveEvent {
-  final String employeeId;
-
-  const FetchLeaveHistory(this.employeeId);
+  const FetchLeaveHistory();
 
   @override
-  List<Object?> get props => [employeeId];
+  List<Object?> get props => [];
+}
+
+class CreateLeaveRequest extends LeaveEvent {
+  final Map<String, dynamic> leaveData;
+
+  const CreateLeaveRequest(this.leaveData);
+
+  @override
+  List<Object?> get props => [leaveData];
 }

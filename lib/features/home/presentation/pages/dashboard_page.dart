@@ -1,65 +1,141 @@
+import 'package:altahris_mobile/core/utils/permission_handler.dart';
 import 'package:altahris_mobile/features/attendance/presentation/pages/attendance_page.dart';
 import 'package:altahris_mobile/features/auth/domain/entities/user.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Company.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Departement.dart';
 import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Position.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Shift.dart';
+import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
+import 'package:altahris_mobile/features/home/presentation/bloc/home_event.dart';
+import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart';
+import 'package:altahris_mobile/features/home/presentation/pages/clock_in_page.dart';
 import 'package:altahris_mobile/features/leave/presentation/pages/leave_page.dart';
 import 'package:altahris_mobile/features/payslip/presentation/pages/payslip_page.dart';
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/widgets/index.dart';
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class DashboardPage extends StatefulWidget {
-  final String userName;
+  final User user;
 
-  const DashboardPage({super.key, required this.userName});
+  const DashboardPage({super.key, required this.user});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  late HomeBloc _homeBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _homeBloc = context.read<HomeBloc>();
+    _homeBloc.add(FetchHomeData());
+    // Request all permissions on app start as requested
+    AppPermissionHandler.requestAllPermissions();
+  }
+
   Future<void> _onRefresh() async {
-    // Simulate a delay for refreshing data
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        // You can update the data here if needed in the future
-      });
+    _homeBloc.add(FetchHomeData());
+    await _homeBloc.stream.firstWhere((state) => state is! HomeLoading);
+  }
+
+  void _navigateToAttendance(bool isClockIn) {
+    pushScreen(
+      context,
+      screen: ClockInPage(isClockIn: isClockIn),
+      withNavBar: false,
+      pageTransitionAnimation: PageTransitionAnimation.fade,
+    );
+  }
+
+  bool _isToday(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty || dateStr == '--:--') return false;
+    try {
+      final date = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      return date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day;
+    } catch (_) {
+      return false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        color: AppColors.primary,
-        child: Stack(
-          children: [
-            Positioned(top: 0, left: 0, right: 0, child: _buildHeader(context)),
-            Positioned.fill(
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    Visibility(
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      visible: false,
-                      child: _buildHeader(context),
-                    ),
-                    _buildScroll(context),
-                  ],
+    return BlocListener<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state is ClockInLoading || state is ClockOutLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) =>
+                const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is ClockInSuccess || state is ClockOutSuccess) {
+          Navigator.of(context).pop(); // Pop loading
+          showDialog(
+            context: context,
+            builder: (context) => SuccessDialog(
+              title: 'Success',
+              message: state is ClockInSuccess
+                  ? 'Clock-in successful!'
+                  : 'Clock-out successful!',
+            ),
+          );
+        } else if (state is ClockInFailure || state is ClockOutFailure) {
+          Navigator.of(context).pop(); // Pop loading
+          final message = state is ClockInFailure
+              ? state.message
+              : (state as ClockOutFailure).message;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message), backgroundColor: Colors.red),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: AppColors.primary,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is HomeLoaded,
+                  builder: (context, state) {
+                    if (state is HomeLoaded) {
+                      return _buildHeader(context, state);
+                    }
+                    return _buildHeader(context, null);
+                  },
                 ),
               ),
-            ),
-          ],
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Visibility(
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        visible: false,
+                        child: _buildHeader(context, null),
+                      ),
+                      _buildScroll(context),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -85,14 +161,37 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           Transform.translate(
             offset: const Offset(0, -70),
-            child: _buildAttendanceSummaryCard(context),
+            child: BlocBuilder<HomeBloc, HomeState>(
+              buildWhen: (previous, current) =>
+                  current is HomeLoaded || current is HomeLoading,
+              builder: (context, state) {
+                Attendance? latest;
+                Employee? employee;
+                if (state is HomeLoaded) {
+                  employee = state.employee;
+                  if (state.attendance.isNotEmpty) {
+                    final first = state.attendance.first;
+                    if (_isToday(first.clockIn)) {
+                      latest = first;
+                    }
+                  }
+                }
+                return _buildAttendanceSummaryCard(context, latest, employee);
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, HomeLoaded? state) {
+    final String name = state?.employee.user.name ?? widget.user.name;
+    final String role =
+        state?.employee.position.name ?? widget.user.role ?? '-';
+    final String company =
+        state?.employee.company.name ?? 'PT Tekadkan Mimpi Indonesia';
+
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -117,9 +216,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'PT Tekadkan Mimpi Indonesia',
-                style: TextStyle(
+              child: Text(
+                company,
+                style: const TextStyle(
                   color: Color(0xFFFF6D00),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -136,22 +235,22 @@ class _DashboardPageState extends State<DashboardPage> {
               child: const CircleAvatar(
                 radius: 40,
                 backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/150?u=budi',
+                  'https://cdn-icons-png.flaticon.com/512/6069/6069202.png',
                 ), // Placeholder
               ),
             ),
             const SizedBox(height: 15),
             Text(
-              widget.userName,
+              name,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Text(
-              'Fullstack Developer',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            Text(
+              role,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
@@ -159,7 +258,40 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildAttendanceSummaryCard(BuildContext context) {
+  String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty || timeStr == '--:--') {
+      return '--:--';
+    }
+    try {
+      // Try parsing as ISO8601 first
+      final dateTime = DateTime.parse(timeStr);
+      return DateFormat('HH:mm').format(dateTime);
+    } catch (e) {
+      // If it's already HH:mm:ss or similar, try parsing that
+      try {
+        final parts = timeStr.split(':');
+        if (parts.length >= 2) {
+          return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+        }
+      } catch (_) {}
+      return timeStr;
+    }
+  }
+
+  Widget _buildAttendanceSummaryCard(
+    BuildContext context,
+    Attendance? latest,
+    Employee? employee,
+  ) {
+    final today = DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
+    final shift = employee?.shift;
+    final shiftInfo = shift != null
+        ? '${shift.name} (${shift.startTime}-${shift.endTime})'
+        : 'Regular Shift (08:00-17:00)';
+
+    final isClockedIn = latest != null && latest.clockIn.isNotEmpty;
+    final isClockedOut = latest != null && latest.clockOut != '--:--';
+
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -177,9 +309,9 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       child: Column(
         children: [
-          const Text(
-            'Monday, 13 April 2026',
-            style: TextStyle(
+          Text(
+            today,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -193,9 +325,9 @@ class _DashboardPageState extends State<DashboardPage> {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.primaryLight),
             ),
-            child: const Text(
-              'Regular Shift (08:00-17:00)',
-              style: TextStyle(
+            child: Text(
+              shiftInfo,
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
@@ -205,9 +337,29 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: _buildTimeBox('Clock In', '08:00', Colors.green)),
+              Expanded(
+                child: GestureDetector(
+                  onTap: isClockedIn ? null : () => _navigateToAttendance(true),
+                  child: _buildTimeBox(
+                    'Clock In',
+                    _formatTime(latest?.clockIn),
+                    Colors.green,
+                  ),
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildTimeBox('Clock Out', '17:00', Colors.red)),
+              Expanded(
+                child: GestureDetector(
+                  onTap: (!isClockedIn || isClockedOut)
+                      ? null
+                      : () => _navigateToAttendance(false),
+                  child: _buildTimeBox(
+                    'Clock Out',
+                    _formatTime(latest?.clockOut),
+                    Colors.red,
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -313,104 +465,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildAttendanceList(BuildContext context) {
-    const dummyCompany = Company(
-      address: '',
-      createdAt: '',
-      email: '',
-      id: '',
-      isActive: true,
-      logo: '',
-      name: 'Dummy Co',
-      npwp: '',
-      phone: '',
-      updatedAt: '',
-    );
-    const dummyDept = Department(
-      company: dummyCompany,
-      companyId: '',
-      createdAt: '',
-      description: '',
-      id: '',
-      isActive: true,
-      name: 'IT',
-      updatedAt: '',
-    );
-    const dummyPos = Position(
-      baseSalary: 0,
-      company: dummyCompany,
-      companyId: '',
-      createdAt: '',
-      department: dummyDept,
-      departmentId: '',
-      id: '',
-      isActive: true,
-      name: 'Staff',
-      updatedAt: '',
-    );
-    const dummyShift = Shift(
-      company: dummyCompany,
-      companyId: '',
-      createdAt: '',
-      endTime: '17:00',
-      id: '',
-      isActive: true,
-      name: 'Regular',
-      startTime: '08:00',
-      updatedAt: '',
-    );
-    const dummyUser = User(id: '1', email: 'test@mail.com', name: 'Test User');
-    const dummyEmployee = Employee(
-      bankAccount: '',
-      bankName: '',
-      birthDate: '',
-      birthPlace: '',
-      bloodType: '',
-      bpjsKesNo: '',
-      bpjsTkNo: '',
-      company: dummyCompany,
-      companyId: '',
-      createdAt: '',
-      department: dummyDept,
-      departmentId: '',
-      employeeNumber: '12345',
-      employeeStatus: 'Active',
-      gender: 'Male',
-      id: '1',
-      joinDate: '',
-      lastEducation: '',
-      maritalStatus: '',
-      nik: '',
-      npwp: '',
-      position: dummyPos,
-      positionId: '',
-      religion: '',
-      resignDate: '',
-      shift: dummyShift,
-      shiftId: '',
-      updatedAt: '',
-      user: dummyUser,
-      userId: '1',
-    );
-
-    final list = List<Attendance>.generate(
-      5,
-      (index) => Attendance(
-        id: "$index",
-        clockIn: "07:00",
-        clockOut: "17:00",
-        date: "Monday, 13 April 2026",
-        status: "Present",
-        createdAt: "2026-04-13T08:00:00Z",
-        updatedAt: "2026-04-13T08:00:00Z",
-        employee: dummyEmployee,
-        employeeId: dummyEmployee.id,
-        notes: "Healthy",
-        overtimeHours: 0,
-        shift: dummyShift,
-        shiftId: dummyShift.id,
-      ),
-    ).toList();
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -424,7 +478,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(builder: (_) => const AttendancePage()),
+                  );
+                },
                 child: const Row(
                   children: [
                     Text('See More', style: TextStyle(color: Colors.orange)),
@@ -435,10 +493,29 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
           const SizedBox(height: 12),
-          Column(
-            children: list
-                .map((e) => AttendanceListTile(attendance: e))
-                .toList(),
+          BlocBuilder<HomeBloc, HomeState>(
+            buildWhen: (previous, current) =>
+                current is HomeLoaded ||
+                current is HomeLoading ||
+                current is HomeFailure,
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is HomeLoaded) {
+                if (state.attendance.isEmpty) {
+                  return const Center(child: Text('No attendance data'));
+                }
+                return Column(
+                  children: state.attendance
+                      .take(5)
+                      .map((e) => AttendanceListTile(attendance: e))
+                      .toList(),
+                );
+              } else if (state is HomeFailure) {
+                return Center(child: Text(state.message));
+              }
+              return const SizedBox();
+            },
           ),
         ],
       ),

@@ -8,6 +8,7 @@ import 'package:altahris_mobile/features/auth/presentation/bloc/auth_event.dart'
 import 'package:altahris_mobile/features/auth/presentation/pages/splash_page.dart';
 import 'package:altahris_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'package:altahris_mobile/features/leave/presentation/bloc/leave_bloc.dart';
+import 'package:altahris_mobile/features/notification/presentation/bloc/notification_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => sl<LeaveBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => sl<NotificationBloc>(),
         ),
       ],
       child: MaterialApp(

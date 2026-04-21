@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:altahris_mobile/features/attendance/data/datasources/history_remote_data_source.dart';
 import 'package:altahris_mobile/features/attendance/data/repositories/history_repository_impl.dart';
 import 'package:altahris_mobile/features/attendance/domain/repositories/history_repository.dart';
 import 'package:altahris_mobile/features/attendance/domain/usecases/get_attendance_history_usecase.dart';
@@ -19,11 +18,19 @@ void initHistory(GetIt sl) {
   sl.registerLazySingleton<HistoryRepository>(
     () => HistoryRepositoryImpl(
       remoteDataSource: sl(),
+      authLocalDataSource: sl(),
+      homeLocalDataSource: sl(),
     ),
   );
 
   // Data Sources
-  sl.registerLazySingleton<HistoryRemoteDataSource>(
-    () => HistoryRemoteDataSourceImpl(sl()),
-  );
+  // sl.registerLazySingleton<HomeRemoteDataSource>(
+  //   () => HomeRemoteDataSourceImpl(sl()),
+  // );
+  // sl.registerLazySingleton<HomeLocalDataSources>(
+  //   () => HomeLocalDataSourcesImpl(sl()),
+  // );
+  // sl.registerLazySingleton<AuthLocalDataSource>(
+  //   () => AuthLocalDataSourceImpl(sl()),
+  // );
 }

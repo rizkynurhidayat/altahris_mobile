@@ -25,6 +25,7 @@ void initAuth(GetIt sl) {
     () => AuthRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
+      homeLocalDataSource: sl(),
     ),
   );
 

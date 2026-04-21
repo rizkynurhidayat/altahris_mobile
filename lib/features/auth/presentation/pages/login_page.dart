@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
             _handleRememberMe();
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => HomePage(userName: state.user.email),
+                builder: (_) => HomePage(user: state.user),
               ),
             );
           } else if (state is AuthFailure) {
@@ -212,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
                   }
-                  return '';
+                  return null;
                 },
               ),
               const SizedBox(height: 16),
