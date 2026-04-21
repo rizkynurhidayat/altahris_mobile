@@ -43,7 +43,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         
         attendanceResult.fold(
           (failure) => emit(HomeFailure(failure.message)),
-          (attendance) => emit(HomeLoaded(attendance, employee)),
+          (attendance) {
+            if(attendance.isEmpty){
+              emit(HomeLoaded([], employee));
+            }
+            if(attendance.length > 3){
+
+            final limit = attendance.getRange(0,3).toList();
+            emit(HomeLoaded(limit, employee));
+            }
+            emit(HomeLoaded(attendance, employee));
+          },
         );
       },
     );

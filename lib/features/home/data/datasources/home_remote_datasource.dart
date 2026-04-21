@@ -14,6 +14,7 @@ abstract class HomeRemoteDataSource {
     required double longitude,
   });
   Future<void> clockOut({
+    required String attendanceId,
     required String employeeId,
     required String imagePath,
     required double latitude,
@@ -71,6 +72,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Future<void> clockOut({
+    required String attendanceId,
     required String employeeId,
     required String imagePath,
     required double latitude,
@@ -81,7 +83,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       final base64Image = base64Encode(bytes);
 
       final response = await dio.put(
-        '/attendances/clock-out',
+        '/attendances/$attendanceId/clock-out',
         data: {
           'employee_id': employeeId,
           'latitude': latitude.toString(),

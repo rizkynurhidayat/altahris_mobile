@@ -56,7 +56,9 @@ class _DashboardPageState extends State<DashboardPage> {
     try {
       final date = DateTime.parse(dateStr);
       final now = DateTime.now();
-      return date.year == now.year && date.month == now.month && date.day == now.day;
+      return date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day;
     } catch (_) {
       return false;
     }
@@ -70,7 +72,8 @@ class _DashboardPageState extends State<DashboardPage> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => const Center(child: CircularProgressIndicator()),
+            builder: (context) =>
+                const Center(child: CircularProgressIndicator()),
           );
         } else if (state is ClockInSuccess || state is ClockOutSuccess) {
           Navigator.of(context).pop(); // Pop loading
@@ -78,12 +81,16 @@ class _DashboardPageState extends State<DashboardPage> {
             context: context,
             builder: (context) => SuccessDialog(
               title: 'Success',
-              message: state is ClockInSuccess ? 'Clock-in successful!' : 'Clock-out successful!',
+              message: state is ClockInSuccess
+                  ? 'Clock-in successful!'
+                  : 'Clock-out successful!',
             ),
           );
         } else if (state is ClockInFailure || state is ClockOutFailure) {
           Navigator.of(context).pop(); // Pop loading
-          final message = state is ClockInFailure ? state.message : (state as ClockOutFailure).message;
+          final message = state is ClockInFailure
+              ? state.message
+              : (state as ClockOutFailure).message;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(message), backgroundColor: Colors.red),
           );
@@ -97,18 +104,19 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Stack(
             children: [
               Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: BlocBuilder<HomeBloc, HomeState>(
-                    buildWhen: (previous, current) => current is HomeLoaded,
-                    builder: (context, state) {
-                      if (state is HomeLoaded) {
-                        return _buildHeader(context, state);
-                      }
-                      return _buildHeader(context, null);
-                    },
-                  )),
+                top: 0,
+                left: 0,
+                right: 0,
+                child: BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is HomeLoaded,
+                  builder: (context, state) {
+                    if (state is HomeLoaded) {
+                      return _buildHeader(context, state);
+                    }
+                    return _buildHeader(context, null);
+                  },
+                ),
+              ),
               Positioned.fill(
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -154,7 +162,8 @@ class _DashboardPageState extends State<DashboardPage> {
           Transform.translate(
             offset: const Offset(0, -70),
             child: BlocBuilder<HomeBloc, HomeState>(
-              buildWhen: (previous, current) => current is HomeLoaded || current is HomeLoading,
+              buildWhen: (previous, current) =>
+                  current is HomeLoaded || current is HomeLoading,
               builder: (context, state) {
                 Attendance? latest;
                 Employee? employee;
@@ -178,8 +187,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildHeader(BuildContext context, HomeLoaded? state) {
     final String name = state?.employee.user.name ?? widget.user.name;
-    final String role = state?.employee.position.name ?? widget.user.role ?? '-';
-    final String company = state?.employee.company.name ?? 'PT Tekadkan Mimpi Indonesia';
+    final String role =
+        state?.employee.position.name ?? widget.user.role ?? '-';
+    final String company =
+        state?.employee.company.name ?? 'PT Tekadkan Mimpi Indonesia';
 
     return Container(
       width: double.infinity,
@@ -267,13 +278,23 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  Widget _buildAttendanceSummaryCard(BuildContext context, Attendance? latest, Employee? employee) {
+  Widget _buildAttendanceSummaryCard(
+    BuildContext context,
+    Attendance? latest,
+    Employee? employee,
+  ) {
     final today = DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
     final shift = employee?.shift;
-    final shiftInfo = shift != null ? '${shift.name} (${shift.startTime}-${shift.endTime})' : 'Regular Shift (08:00-17:00)';
+    final shiftInfo = shift != null
+        ? '${shift.name} (${shift.startTime}-${shift.endTime})'
+        : 'Regular Shift (08:00-17:00)';
 
     final isClockedIn = latest != null && latest.clockIn.isNotEmpty;
-    final isClockedOut = latest != null && latest.clockOut != null && latest.clockOut!.isNotEmpty && latest.clockOut != '--:--';
+    final isClockedOut =
+        latest != null &&
+        latest.clockOut != null &&
+        latest.clockOut!.isNotEmpty &&
+        latest.clockOut != '--:--';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -323,14 +344,24 @@ class _DashboardPageState extends State<DashboardPage> {
               Expanded(
                 child: GestureDetector(
                   onTap: isClockedIn ? null : () => _navigateToAttendance(true),
-                  child: _buildTimeBox('Clock In', _formatTime(latest?.clockIn), Colors.green),
+                  child: _buildTimeBox(
+                    'Clock In',
+                    _formatTime(latest?.clockIn),
+                    Colors.green,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: GestureDetector(
-                  onTap: (!isClockedIn || isClockedOut) ? null : () => _navigateToAttendance(false),
-                  child: _buildTimeBox('Clock Out', _formatTime(latest?.clockOut), Colors.red),
+                  onTap: (!isClockedIn || isClockedOut)
+                      ? null
+                      : () => _navigateToAttendance(false),
+                  child: _buildTimeBox(
+                    'Clock Out',
+                    _formatTime(latest?.clockOut),
+                    Colors.red,
+                  ),
                 ),
               ),
             ],
@@ -451,7 +482,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(builder: (_) => const AttendancePage()),
+                  );
+                },
                 child: const Row(
                   children: [
                     Text('See More', style: TextStyle(color: Colors.orange)),
@@ -463,7 +498,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           const SizedBox(height: 12),
           BlocBuilder<HomeBloc, HomeState>(
-            buildWhen: (previous, current) => current is HomeLoaded || current is HomeLoading || current is HomeFailure,
+            buildWhen: (previous, current) =>
+                current is HomeLoaded ||
+                current is HomeLoading ||
+                current is HomeFailure,
             builder: (context, state) {
               if (state is HomeLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -472,7 +510,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   return const Center(child: Text('No attendance data'));
                 }
                 return Column(
-                  children: state.attendance.take(5).map((e) => AttendanceListTile(attendance: e)).toList(),
+                  children: state.attendance
+                      .take(5)
+                      .map((e) => AttendanceListTile(attendance: e))
+                      .toList(),
                 );
               } else if (state is HomeFailure) {
                 return Center(child: Text(state.message));

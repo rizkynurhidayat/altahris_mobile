@@ -44,15 +44,15 @@ class SuccessDialog extends StatelessWidget {
               width: 150,
               height: 150,
               repeat: false,
-              onLoaded: (composition) {
+              // onLoaded: (composition) {
                 // Auto dismiss after animation
-                Future.delayed(composition.duration + const Duration(milliseconds: 500), () {
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                    onDismiss?.call();
-                  }
-                });
-              },
+                // Future.delayed(composition.duration + const Duration(milliseconds: 500), () {
+                //   if (Navigator.canPop(context)) {
+                //     Navigator.pop(context);
+                //     onDismiss?.call();
+                //   }
+                // });
+              // },
             ),
             const SizedBox(height: 16),
             Text(
@@ -77,6 +77,7 @@ class SuccessDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  //TODO: ubah ini besok, belum kembali ke home, masih stuck di hlaman itu.
                   Navigator.pop(context);
                   onDismiss?.call();
                 },
