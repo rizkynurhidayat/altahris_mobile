@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/pdf_viewer_page.dart';
+import '../bloc/payslip_bloc.dart';
+import '../bloc/payslip_event.dart';
+import '../bloc/payslip_state.dart';
 
 class PayslipPage extends StatefulWidget {
   const PayslipPage({super.key});
@@ -10,76 +15,22 @@ class PayslipPage extends StatefulWidget {
 }
 
 class _PayslipPageState extends State<PayslipPage> {
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _fetchPayslips();
   }
 
-  Future<void> _loadInitialData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    // Simulate initial loading delay
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+  void _fetchPayslips() {
+    context.read<PayslipBloc>().add(GetPayslipsMeEvent());
   }
-
-  final List<Map<String, String>> _payslips = [
-    {
-      'month': 'April 2026',
-      'url':
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      'status': 'On Process',
-      'paidOn': '-',
-    },
-    {
-      'month': 'March 2026',
-      'url':
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      'status': 'Paid',
-      'paidOn': '25 Mar 2026',
-    },
-    {
-      'month': 'February 2026',
-      'url':
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      'status': 'Paid',
-      'paidOn': '25 Feb 2026',
-    },
-    {
-      'month': 'January 2026',
-      'url':
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      'status': 'Paid',
-      'paidOn': '25 Jan 2026',
-    },
-    {
-      'month': 'Desember 2025',
-      'url':
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      'status': 'Paid',
-      'paidOn': '25 Des 2025',
-    },
-  ];
 
   Future<void> _onRefresh() async {
-    setState(() {
-      _isLoading = true;
-    });
-    // Simulate a delay for refreshing data
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    _fetchPayslips();
+  }
+
+  String _getMonthName(int month) {
+    return DateFormat('MMMM').format(DateTime(2024, month));
   }
 
   @override
@@ -104,149 +55,185 @@ class _PayslipPageState extends State<PayslipPage> {
         ),
         shape: Border(bottom: BorderSide(color: Colors.grey[100]!, width: 1)),
       ),
-      body: _isLoading
-          ? const Center(
+      body: BlocBuilder<PayslipBloc, PayslipState>(
+        builder: (context, state) {
+          if (state is PayslipLoading) {
+            return const Center(
               child: CircularProgressIndicator(
                 color: AppColors.primary,
               ),
-            )
-          : RefreshIndicator(
+            );
+          } else if (state is PayslipLoaded) {
+            if (state.payrolls.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: const Center(
+                  child: Text('No payslips found'),
+                ),
+              );
+            }
+            return RefreshIndicator(
               onRefresh: _onRefresh,
               color: AppColors.primary,
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: _payslips.length,
+                itemCount: state.payrolls.length,
                 itemBuilder: (context, index) {
-                  final payslip = _payslips[index];
-            final month = payslip['month']!;
-            final url = payslip['url']!;
-            final status = payslip['status']!;
-            final paidOn = payslip['paidOn']!;
-            final isPaid = status == 'Paid';
+                  final payroll = state.payrolls[index];
+                  final monthYear =
+                      '${_getMonthName(payroll.periodMonth)} ${payroll.periodYear}';
+                  final status = payroll.status;
+                  final paidOn = payroll.paidAt != null
+                      ? DateFormat('dd MMM yyyy')
+                          .format(DateTime.parse(payroll.paidAt!))
+                      : '-';
+                  final isPaid = status.toLowerCase() == 'paid';
+                  const dummyUrl =
+                      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                    child: Text(
-                      month,
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ),
-                  Divider(height: 1, thickness: 1, color: Colors.grey[100]),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                          child: Text(
+                            monthYear,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Divider(
+                            height: 1, thickness: 1, color: Colors.grey[100]),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Status:',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'Status:',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _buildStatusBadge(status),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  _buildStatusBadge(status),
-                                ],
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'Paid on:',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          paidOn,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Paid on:',
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                height: 44,
+                                child: ElevatedButton(
+                                  onPressed: isPaid
+                                      ? () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => PdfViewerPage(
+                                                url: dummyUrl,
+                                                title: 'Payslip Detail',
+                                                fileName:
+                                                    "Payslip_${monthYear.replaceAll(' ', '_')}.pdf",
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    disabledBackgroundColor:
+                                        const Color(0xFF9E9E9E),
+                                    foregroundColor: Colors.white,
+                                    disabledForegroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'View Payslip',
                                     style: TextStyle(
-                                      color: Colors.grey,
                                       fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    paidOn,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        SizedBox(
-                          height: 44,
-                          child: ElevatedButton(
-                            onPressed: isPaid
-                                ? () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => PdfViewerPage(
-                                          url: url,
-                                          title: 'Payslip Detail',
-                                          fileName:
-                                              "Payslip_${month.replaceAll(' ', '_')}.pdf",
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              disabledBackgroundColor: const Color(0xFF9E9E9E),
-                              foregroundColor: Colors.white,
-                              disabledForegroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                            ),
-                            child: const Text(
-                              'View Payslip',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
+                  );
+                },
+              ),
+            );
+          } else if (state is PayslipError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(state.message),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _onRefresh,
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
             );
-          },
-        ),
+          }
+          return const Center(child: Text('No data'));
+        },
       ),
     );
   }
@@ -255,7 +242,7 @@ class _PayslipPageState extends State<PayslipPage> {
     Color backgroundColor;
     Color textColor;
 
-    if (status == 'Paid') {
+    if (status.toLowerCase() == 'paid') {
       backgroundColor = const Color(0xFFE8F8EF);
       textColor = const Color(0xFF2ECC71);
     } else {
