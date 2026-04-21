@@ -40,12 +40,13 @@ class _HomePageState extends State<HomePage> {
       final now = DateTime.now();
       try {
         final clockInDate = DateTime.parse(latest.clockIn);
-        final isToday = clockInDate.year == now.year &&
+        final isToday =
+            clockInDate.year == now.year &&
             clockInDate.month == now.month &&
             clockInDate.day == now.day;
-        
+
         // Check if clocked in but NOT clocked out yet
-        return isToday && (latest.clockOut == null || latest.clockOut!.isEmpty || latest.clockOut == '--:--');
+        return isToday && latest.clockOut == '--:--';
       } catch (_) {}
     }
     return false;
@@ -68,7 +69,9 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           final isClockedIn = _isClockedInToday(state);
           final buttonColor = isClockedIn ? AppColors.primary : Colors.green;
-          final buttonBorderColor = isClockedIn ? Colors.orange.shade900 : Colors.green.shade600;
+          final buttonBorderColor = isClockedIn
+              ? Colors.orange.shade900
+              : Colors.green.shade600;
           final isClockInAction = !isClockedIn;
 
           return PersistentTabView(
@@ -94,7 +97,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               PersistentTabConfig.noScreen(
-                onPressed: (context) => _onClockButtonPressed(context, isClockInAction),
+                onPressed: (context) =>
+                    _onClockButtonPressed(context, isClockInAction),
                 item: ItemConfig(
                   icon: Container(
                     padding: const EdgeInsets.all(13),
@@ -103,7 +107,9 @@ class _HomePageState extends State<HomePage> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isClockInAction ? Icons.login_rounded : Icons.logout_rounded,
+                      isClockInAction
+                          ? Icons.login_rounded
+                          : Icons.logout_rounded,
                       color: Colors.white,
                     ),
                   ),
@@ -115,7 +121,9 @@ class _HomePageState extends State<HomePage> {
               PersistentTabConfig(
                 screen: const ActivityPage(),
                 item: ItemConfig(
-                  icon: const ImageIcon(AssetImage('assets/icon/clipboard.png')),
+                  icon: const ImageIcon(
+                    AssetImage('assets/icon/clipboard.png'),
+                  ),
                   title: "Activity",
                   activeForegroundColor: AppColors.primary,
                   inactiveForegroundColor: Colors.grey,

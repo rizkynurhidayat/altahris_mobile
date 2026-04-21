@@ -30,6 +30,18 @@ class LeaveRepositoryImpl implements LeaveRepository {
       final remoteData = await remoteDataSource.getLeaveHistory(employeeMe.id);
       return Right(remoteData);
     } catch (e) {
+      if (e is Failure) return Left(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Leave>> createLeave(Map<String, dynamic> leaveData) async {
+    try {
+      final remoteData = await remoteDataSource.createLeave(leaveData);
+      return Right(remoteData);
+    } catch (e) {
+      if (e is Failure) return Left(e);
       return Left(ServerFailure(e.toString()));
     }
   }

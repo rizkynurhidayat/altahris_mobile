@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../../../core/error/failures.dart';
 import '../models/notification_model.dart';
 
 abstract class NotificationRemoteDataSource {

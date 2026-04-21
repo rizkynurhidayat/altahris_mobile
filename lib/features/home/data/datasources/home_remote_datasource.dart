@@ -139,7 +139,9 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         }
 
         return listToMap.map((e) => AttendanceModel.fromJson(e)).toList();
-      } else {
+      }
+      
+      else {
         throw ServerFailure(
           response.data['message'] ?? 'Failed to fetch attendance data',
         );

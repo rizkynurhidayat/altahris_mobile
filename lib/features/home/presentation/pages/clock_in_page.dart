@@ -180,10 +180,14 @@ class _ClockInPageState extends State<ClockInPage> {
               context,
               title: 'Success',
               message: 'Attendance recorded successfully!',
+              onDismiss: () {
+                Navigator.pop(context);
+                context.read<HomeBloc>().add(FetchHomeData());
+              },
             );
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) Navigator.pop(context);
-            });
+            // Future.delayed(const Duration(seconds: 2), () {
+            //   if (mounted) Navigator.pop(context);
+            // });
           } else if (state is ClockInFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -325,6 +329,7 @@ class _ClockInPageState extends State<ClockInPage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
+                                    padding: EdgeInsets.all(0)
                                   ),
                                 )
                               : OutlinedButton(

@@ -90,7 +90,8 @@ class DioClient {
               if (refreshResponse.statusCode == 200) {
                 final tokens = refreshResponse.data['data'];
                 final newAccessToken = tokens['access_token'];
-                final newRefreshToken = tokens['refresh_token'];
+                // Some APIs might not return a new refresh token, keep the old one if so
+                final newRefreshToken = tokens['refresh_token'] ?? user.refreshToken;
 
                 print('--- Token Refreshed Successfully ---');
 
@@ -103,7 +104,17 @@ class DioClient {
                 // Retry original request
                 print('--- Retrying original request: ${e.requestOptions.path} ---');
                 e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-                final response = await dio.fetch(e.requestOptions);
+                
+                // Fix: ensure the new token is used for retried requests
+                final response = await dio.request(
+                  e.requestOptions.path,
+                  data: e.requestOptions.data,
+                  queryParameters: e.requestOptions.queryParameters,
+                  options: Options(
+                    method: e.requestOptions.method,
+                    headers: e.requestOptions.headers,
+                  ),
+                );
                 handler.resolve(response);
 
                 // Retry all other queued requests
@@ -113,7 +124,15 @@ class DioClient {
                   
                   print('--- Retrying queued request: ${options.path} ---');
                   options.headers['Authorization'] = 'Bearer $newAccessToken';
-                  final retryResponse = await dio.fetch(options);
+                  final retryResponse = await dio.request(
+                    options.path,
+                    data: options.data,
+                    queryParameters: options.queryParameters,
+                    options: Options(
+                      method: options.method,
+                      headers: options.headers,
+                    ),
+                  );
                   requestHandler.resolve(retryResponse);
                 }
                 _failedRequests.clear();

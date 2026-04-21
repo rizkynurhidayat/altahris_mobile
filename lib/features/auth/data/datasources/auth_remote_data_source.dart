@@ -69,7 +69,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await dio.post(
         '/auth/refresh',
-        data: {'refresh_token': refreshToken},
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $refreshToken"
+          }
+        ),
       );
 
       if (response.statusCode == 200) {

@@ -290,11 +290,7 @@ class _DashboardPageState extends State<DashboardPage> {
         : 'Regular Shift (08:00-17:00)';
 
     final isClockedIn = latest != null && latest.clockIn.isNotEmpty;
-    final isClockedOut =
-        latest != null &&
-        latest.clockOut != null &&
-        latest.clockOut!.isNotEmpty &&
-        latest.clockOut != '--:--';
+    final isClockedOut = latest != null && latest.clockOut != '--:--';
 
     return Container(
       padding: const EdgeInsets.all(16),
