@@ -3,6 +3,7 @@ import 'package:altahris_mobile/features/attendance/data/repositories/history_re
 import 'package:altahris_mobile/features/attendance/domain/repositories/history_repository.dart';
 import 'package:altahris_mobile/features/attendance/domain/usecases/get_attendance_history_usecase.dart';
 import 'package:altahris_mobile/features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 
 /// Dependency Injection for History Feature
 void initHistory(GetIt sl) {
@@ -19,6 +20,7 @@ void initHistory(GetIt sl) {
     () => HistoryRepositoryImpl(
       remoteDataSource: sl(),
       authLocalDataSource: sl(),
+      homeLocalDataSource: sl(),
     ),
   );
 

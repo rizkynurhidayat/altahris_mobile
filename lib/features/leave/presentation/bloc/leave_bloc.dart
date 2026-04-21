@@ -15,7 +15,7 @@ class LeaveBloc extends Bloc<LeaveEvent, LeaveState> {
     Emitter<LeaveState> emit,
   ) async {
     emit(LeaveLoading());
-    final result = await getLeaveHistoryUseCase.execute(event.employeeId);
+    final result = await getLeaveHistoryUseCase.execute();
     result.fold(
       (failure) => emit(LeaveFailure(failure.message)),
       (leaves) => emit(LeaveLoaded(leaves)),

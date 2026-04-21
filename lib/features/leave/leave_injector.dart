@@ -1,3 +1,5 @@
+import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
+import 'package:altahris_mobile/features/home/data/datasources/home_remote_datasource.dart';
 import 'package:get_it/get_it.dart';
 import 'data/datasources/leave_remote_datasource.dart';
 import 'data/repositories/leave_repository_impl.dart';
@@ -14,7 +16,11 @@ void initLeave(GetIt sl) {
 
   // Repository
   sl.registerLazySingleton<LeaveRepository>(
-    () => LeaveRepositoryImpl(remoteDataSource: sl()),
+    () => LeaveRepositoryImpl(
+      remoteDataSource: sl(),
+      homeLocalDataSource: sl(),
+      homeRemoteDataSource: sl(),
+    ),
   );
 
   // Data sources

@@ -24,7 +24,7 @@ class _LeavePageState extends State<LeavePage> {
   }
 
   void _fetchHistory() {
-    context.read<LeaveBloc>().add(const FetchLeaveHistory('1'));
+    context.read<LeaveBloc>().add(const FetchLeaveHistory());
   }
 
   @override

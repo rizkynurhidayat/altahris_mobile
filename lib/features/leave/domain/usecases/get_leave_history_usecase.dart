@@ -8,7 +8,7 @@ class GetLeaveHistoryUseCase {
 
   GetLeaveHistoryUseCase(this.repository);
 
-  Future<Either<Failure, List<Leave>>> execute(String employeeId) async {
-    return await repository.getLeaveHistory(employeeId);
+  Future<Either<Failure, List<Leave>>> execute() async {
+    return await repository.getLeaveHistory();
   }
 }

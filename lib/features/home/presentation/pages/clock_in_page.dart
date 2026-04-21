@@ -36,7 +36,8 @@ class _ClockInPageState extends State<ClockInPage> {
   }
 
   Future<void> _takePhoto() async {
-    final cameraGranted = await AppPermissionHandler.checkAndRequestCameraPermission();
+    final cameraGranted =
+        await AppPermissionHandler.checkAndRequestCameraPermission();
     if (!cameraGranted) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -60,9 +61,9 @@ class _ClockInPageState extends State<ClockInPage> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error taking photo: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error taking photo: $e')));
       }
     }
   }
@@ -80,7 +81,11 @@ class _ClockInPageState extends State<ClockInPage> {
       if (!serviceEnabled) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location services are disabled. Please enable them.')),
+            const SnackBar(
+              content: Text(
+                'Location services are disabled. Please enable them.',
+              ),
+            ),
           );
         }
         setState(() => _isLocating = false);
@@ -105,7 +110,9 @@ class _ClockInPageState extends State<ClockInPage> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are permanently denied.')),
+            const SnackBar(
+              content: Text('Location permissions are permanently denied.'),
+            ),
           );
         }
         setState(() => _isLocating = false);
@@ -122,17 +129,21 @@ class _ClockInPageState extends State<ClockInPage> {
 
       if (mounted) {
         if (widget.isClockIn) {
-          context.read<HomeBloc>().add(PerformClockIn(
-                imagePath: _image!.path,
-                latitude: position.latitude,
-                longitude: position.longitude,
-              ));
+          context.read<HomeBloc>().add(
+            PerformClockIn(
+              imagePath: _image!.path,
+              latitude: position.latitude,
+              longitude: position.longitude,
+            ),
+          );
         } else {
-          context.read<HomeBloc>().add(PerformClockOut(
-                imagePath: _image!.path,
-                latitude: position.latitude,
-                longitude: position.longitude,
-              ));
+          context.read<HomeBloc>().add(
+            PerformClockOut(
+              imagePath: _image!.path,
+              latitude: position.latitude,
+              longitude: position.longitude,
+            ),
+          );
         }
       }
     } catch (e) {
@@ -140,13 +151,14 @@ class _ClockInPageState extends State<ClockInPage> {
       if (mounted) {
         String errorMessage = 'Error getting location';
         if (e.toString().contains('Timeout')) {
-          errorMessage = 'Location request timed out. Please try again or move to an open area.';
+          errorMessage =
+              'Location request timed out. Please try again or move to an open area.';
         } else {
           errorMessage = 'Error: ${e.toString()}';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
     } finally {
       if (mounted) {
@@ -174,24 +186,40 @@ class _ClockInPageState extends State<ClockInPage> {
             });
           } else if (state is ClockInFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           } else if (state is ClockOutFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.isClockIn ? 'Clock In' : 'Clock Out'),
+            title: Text(
+              widget.isClockIn ? 'Clock In' : 'Clock Out',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+              ),
+            ),
             backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
+            foregroundColor: AppColors.primary,
+            centerTitle: true,
             elevation: 0,
           ),
           body: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
-              final isLoading = state is ClockInLoading || state is ClockOutLoading || _isLocating;
+              final isLoading =
+                  state is ClockInLoading ||
+                  state is ClockOutLoading ||
+                  _isLocating;
 
               return Column(
                 children: [
@@ -248,18 +276,24 @@ class _ClockInPageState extends State<ClockInPage> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: isLoading ? null : () => _submitAttendance(context),
+                              onPressed: isLoading
+                                  ? null
+                                  : () => _submitAttendance(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                padding: EdgeInsets.all(5)
+                                padding: EdgeInsets.all(5),
                               ),
                               child: isLoading
-                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
                                   : Text(
-                                      widget.isClockIn ? 'Submit Clock In' : 'Submit Clock Out',
+                                      widget.isClockIn
+                                          ? 'Submit Clock In'
+                                          : 'Submit Clock Out',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -275,7 +309,10 @@ class _ClockInPageState extends State<ClockInPage> {
                           child: _image == null
                               ? ElevatedButton.icon(
                                   onPressed: isLoading ? null : _takePhoto,
-                                  icon: const Icon(Icons.camera_alt, color: Colors.white),
+                                  icon: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                  ),
                                   label: const Text(
                                     'Take Photo',
                                     style: TextStyle(
@@ -293,7 +330,9 @@ class _ClockInPageState extends State<ClockInPage> {
                               : OutlinedButton(
                                   onPressed: isLoading ? null : _takePhoto,
                                   style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: AppColors.primary),
+                                    side: const BorderSide(
+                                      color: AppColors.primary,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),

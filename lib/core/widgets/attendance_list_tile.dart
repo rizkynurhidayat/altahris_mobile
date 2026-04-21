@@ -30,8 +30,50 @@ class AttendanceListTile extends StatelessWidget {
     }
   }
 
+  String _getStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'late_in':
+        return 'Late';
+      case 'early_in':
+        return 'Early';
+      case 'on_time':
+        return 'On Time';
+      case 'absent':
+        return 'Absent';
+      case 'leave':
+        return 'Leave';
+      default:
+        // Capitalize first letter of each word as fallback
+        if (status.isEmpty) return 'Unknown';
+        return status.split('_').map((word) {
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        }).join(' ');
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'late_in':
+        return Colors.red;
+      case 'early_in':
+        return Colors.blue;
+      case 'on_time':
+        return Colors.green;
+      case 'absent':
+        return Colors.grey;
+      case 'leave':
+        return Colors.orange;
+      default:
+        return Colors.green;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final statusLabel = _getStatusLabel(attendance.status);
+    final statusColor = _getStatusColor(attendance.status);
+
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(vertical: 5),
@@ -56,13 +98,13 @@ class AttendanceListTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  attendance.status,
+                  statusLabel,
                   style: TextStyle(
-                    color: Colors.green.shade700,
+                    color: statusColor.withOpacity(0.8),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),

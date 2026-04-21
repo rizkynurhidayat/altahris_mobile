@@ -224,7 +224,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: const CircleAvatar(
                 radius: 40,
                 backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/150?u=budi',
+                  'https://cdn-icons-png.flaticon.com/512/6069/6069202.png',
                 ), // Placeholder
               ),
             ),

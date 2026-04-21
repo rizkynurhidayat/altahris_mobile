@@ -1,3 +1,4 @@
+import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/user.dart';
@@ -8,10 +9,12 @@ import '../datasources/auth_remote_data_source.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
+  final HomeLocalDataSources homeLocalDataSource;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
+    required this.homeLocalDataSource,
   });
 
   @override
@@ -52,6 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Even if remote logout fails, we proceed to clear local cache
     } finally {
       await localDataSource.clearCache();
+      await homeLocalDataSource.clearCache();
     }
   }
 }

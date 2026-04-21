@@ -21,7 +21,12 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<Either<Failure, List<Attendance>>> getAttendance() async {
     try {
-      final employeeMe = await remoteDataSource.getEmployeeMe();
+      Employee? employeeMe = await homeLocalDataSource.getCachedEmployee();
+      if (employeeMe == null) {
+        final remoteEmployee = await remoteDataSource.getEmployeeMe();
+        await homeLocalDataSource.cacheEmployee(remoteEmployee);
+        employeeMe = remoteEmployee;
+      }
       final result = await remoteDataSource.getAttendance(employeeMe.id);
       return Right(result);
     } catch (e) {
@@ -33,7 +38,12 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<Either<Failure, Employee>> getEmployeeMe() async {
     try {
+      final cachedEmployee = await homeLocalDataSource.getCachedEmployee();
+      if (cachedEmployee != null) {
+        return Right(cachedEmployee);
+      }
       final result = await remoteDataSource.getEmployeeMe();
+      await homeLocalDataSource.cacheEmployee(result);
       return Right(result);
     } catch (e) {
       if (e is Failure) return Left(e);
@@ -48,7 +58,12 @@ class HomeRepositoryImpl implements HomeRepository {
     required double longitude,
   }) async {
     try {
-      final employeeMe = await remoteDataSource.getEmployeeMe();
+      Employee? employeeMe = await homeLocalDataSource.getCachedEmployee();
+      if (employeeMe == null) {
+        final remoteEmployee = await remoteDataSource.getEmployeeMe();
+        await homeLocalDataSource.cacheEmployee(remoteEmployee);
+        employeeMe = remoteEmployee;
+      }
       
       await remoteDataSource.clockIn(
         employeeId: employeeMe.id,
@@ -71,7 +86,12 @@ class HomeRepositoryImpl implements HomeRepository {
     required double longitude,
   }) async {
     try {
-      final employeeMe = await remoteDataSource.getEmployeeMe();
+      Employee? employeeMe = await homeLocalDataSource.getCachedEmployee();
+      if (employeeMe == null) {
+        final remoteEmployee = await remoteDataSource.getEmployeeMe();
+        await homeLocalDataSource.cacheEmployee(remoteEmployee);
+        employeeMe = remoteEmployee;
+      }
       
       await remoteDataSource.clockOut(
         employeeId: employeeMe.id,
