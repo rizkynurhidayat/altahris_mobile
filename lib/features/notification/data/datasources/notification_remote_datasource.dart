@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/error/failures.dart';
 import '../models/notification_model.dart';
 
 abstract class NotificationRemoteDataSource {
@@ -12,6 +13,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
   @override
   Future<List<NotificationModel>> getNotifications(String token, {int? limit}) async {
+    /*
     // Simulating API delay
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -57,60 +59,11 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         "is_read": true,
         "created_at": "Yesterday, 08.15 AM",
       },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
-      {
-        "id": "5",
-        "title": "Leave Request Submitted",
-        "message": "Your business trip leave request for 3 days has been successfully submitted.",
-        "type": "error", // Red
-        "is_read": true,
-        "created_at": "Yesterday, 08.15 AM",
-      },
     ];
 
     return dummyData.map((e) => NotificationModel.fromJson(e)).toList();
+    */
 
-    /* 
-    // Real API Implementation (Commented out as requested)
     try {
       final response = await dio.get(
         '/notifications',
@@ -123,8 +76,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final notificationResponse = NotificationResponseModel.fromJson(response.data);
-        return notificationResponse.data;
+        final List<dynamic> data = response.data['data'];
+        return data.map((e) => NotificationModel.fromJson(e)).toList();
       } else {
         throw ServerFailure(
           response.data['message'] ?? 'Failed to fetch notifications',
@@ -143,6 +96,5 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());
     }
-    */
   }
 }

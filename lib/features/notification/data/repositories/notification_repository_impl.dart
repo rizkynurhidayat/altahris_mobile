@@ -17,14 +17,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, List<NotificationEntity>>> getNotifications({int? limit}) async {
     try {
-      // final user = await localDataSource.getCachedUser();
-      // if (user == null || user.token == null) {
-      //   return const Left(ServerFailure('Authentication token not found'));
-      // }
+      final user = await localDataSource.getCachedUser();
+      if (user == null || user.token == null) {
+        return const Left(ServerFailure('Authentication token not found'));
+      }
 
       final notifications = await remoteDataSource.getNotifications(
-        // user.token!,
-        "tokeeen",
+        user.token!,
         limit: limit,
       );
       return Right(notifications);
