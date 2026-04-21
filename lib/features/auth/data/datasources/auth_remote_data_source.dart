@@ -6,6 +6,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> getUserInfo(String token);
   Future<Map<String,dynamic>> logout(String token);
+  Future<Map<String, dynamic>> refreshToken(String refreshToken);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -15,7 +16,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> login(String email, String password) async {
-    // Implementasi API sesungguhnya (dimatikan sementara)
     try {
       final response = await dio.post(
         '/auth/login',
@@ -25,6 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final loginData = response.data['data'];
         final token = loginData['access_token'];
+        final refreshToken = loginData['refresh_token'];
 
         final userData = await getUserInfo(token);
 
@@ -32,12 +33,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             throw ServerFailure('Login failed, please use employee account!!!');
         }
         
-        // Return UserModel with token
+        // Return UserModel with tokens
         return UserModel(
           id: userData.id,
           email: userData.email,
           name: userData.name,
           token: token,
+          refreshToken: refreshToken,
           role: userData.role,
           phone: userData.phone,
           address: userData.address,
@@ -56,6 +58,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final message =
           e.response?.data['message'] ?? e.message ?? 'Server error';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
+    try {
+      final response = await dio.post(
+        '/auth/refresh',
+        data: {'refresh_token': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw ServerFailure(response.data['message'] ?? 'Refresh token failed');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? 'Refresh token error';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());
@@ -94,8 +117,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getUserInfo(String token) async {
-    // TODO: implement getUserById
-
     try {
       final response = await dio.get(
         '/users/me',
@@ -122,7 +143,5 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       throw ServerFailure(e.toString());
     }
-
-    // return UserModel(id: "id", email: "email", name: "name");
   }
 }

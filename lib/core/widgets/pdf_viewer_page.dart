@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'package:altahris_mobile/core/utils/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../theme/app_colors.dart';
 import 'download_confirm_dialog.dart';
 import 'success_dialog.dart';
@@ -30,18 +30,15 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
 
   Future<void> _startDownload() async {
     try {
-      // Check permissions
-      if (Platform.isAndroid) {
-        var status = await Permission.storage.status;
-        if (!status.isGranted) {
-          status = await Permission.storage.request();
-          if (!status.isGranted) {
-            // For Android 13+ we might need manageExternalStorage or just use app docs
-            if (await Permission.manageExternalStorage.request().isDenied) {
-              // If still denied, try to proceed with internal docs
-            }
-          }
+      // Check permissions using our handler
+      final hasPermission = await AppPermissionHandler.checkAndRequestStoragePermission();
+      if (!hasPermission) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Storage permission is required to download.')),
+          );
         }
+        return;
       }
 
       setState(() {
@@ -51,6 +48,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
 
       Directory? directory;
       if (Platform.isAndroid) {
+        // Try public Download folder first for Android
         directory = Directory('/storage/emulated/0/Download');
         if (!await directory.exists()) {
           directory = await getExternalStorageDirectory();
@@ -59,7 +57,11 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
         directory = await getApplicationDocumentsDirectory();
       }
 
-      final filePath = "${directory!.path}/${widget.fileName}";
+      if (directory == null) {
+        throw Exception("Could not find a directory to save the file.");
+      }
+
+      final filePath = "${directory.path}/${widget.fileName}";
       final dio = Dio();
 
       await dio.download(
@@ -82,7 +84,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
         SuccessDialog.show(
           context,
           title: 'Download Success',
-          message: 'Your payslip has been successfully downloaded.',
+          message: 'Your payslip has been successfully downloaded to ${directory.path}',
         );
       }
     } catch (e) {
@@ -92,7 +94,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to download: $e'),
+            content: Text('Failed to download: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );

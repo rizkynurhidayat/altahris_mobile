@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
+import 'package:intl/intl.dart';
 
 /// A reusable list tile to display attendance information
 /// 
@@ -8,6 +9,26 @@ class AttendanceListTile extends StatelessWidget {
   const AttendanceListTile({super.key, required this.attendance});
 
   final Attendance attendance;
+
+  String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty || timeStr == '--:--') {
+      return '--:--';
+    }
+    try {
+      // Try parsing as ISO8601 first
+      final dateTime = DateTime.parse(timeStr);
+      return DateFormat('HH:mm').format(dateTime);
+    } catch (e) {
+      // If it's already HH:mm:ss or similar, try parsing that
+      try {
+        final parts = timeStr.split(':');
+        if (parts.length >= 2) {
+          return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+        }
+      } catch (_) {}
+      return timeStr;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,14 +80,14 @@ class AttendanceListTile extends StatelessWidget {
               _buildAttendanceDetailItem(
                 Icons.login,
                 'Clock In',
-                attendance.clockIn ,
+                _formatTime(attendance.clockIn),
                 Colors.green,
               ),
               const Spacer(),
               _buildAttendanceDetailItem(
                 Icons.logout,
                 'Clock Out',
-                attendance.clockOut ,
+                _formatTime(attendance.clockOut),
                 Colors.red,
               ),
             ],

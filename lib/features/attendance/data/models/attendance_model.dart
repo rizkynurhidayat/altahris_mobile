@@ -1,9 +1,7 @@
-import 'package:altahris_mobile/features/home/data/models/employee_model.dart';
-import 'package:altahris_mobile/features/home/data/models/shift_model.dart';
 import '../../domain/entities/attendance.dart';
 
 class AttendanceModel extends Attendance {
-   AttendanceModel({
+  const AttendanceModel({
     required super.id,
     required super.date,
     required super.clockIn,
@@ -13,10 +11,6 @@ class AttendanceModel extends Attendance {
     required super.overtimeHours,
     required super.createdAt,
     required super.updatedAt,
-    required super.employee,
-    required super.employeeId,
-    required super.shift,
-    required super.shiftId,
   });
 
   factory AttendanceModel.fromJson(Map<String, dynamic> json) {
@@ -30,10 +24,6 @@ class AttendanceModel extends Attendance {
       overtimeHours: json['overtime_hours'] is int ? json['overtime_hours'] : 0,
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
-      employee: EmployeeModel.fromJson(json['employee'] ?? {}),
-      employeeId: json['employee_id'] ?? '',
-      shift: ShiftModel.fromJson(json['shift'] ?? {}),
-      shiftId: json['shift_id'] ?? '',
     );
   }
 
@@ -48,10 +38,6 @@ class AttendanceModel extends Attendance {
       'overtime_hours': overtimeHours,
       'created_at': createdAt,
       'updated_at': updatedAt,
-      'employee': (employee as EmployeeModel).toJson(),
-      'employee_id': employeeId,
-      'shift': (shift as ShiftModel).toJson(),
-      'shift_id': shiftId,
     };
   }
 }
