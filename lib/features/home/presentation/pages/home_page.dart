@@ -1,4 +1,5 @@
 import 'package:altahris_mobile/core/theme/app_colors.dart';
+import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart';
 import 'package:altahris_mobile/features/home/presentation/pages/activity_page.dart';
@@ -67,10 +68,10 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
-  void _onClockButtonPressed(BuildContext context, bool isClockIn) {
+  void _onClockButtonPressed(BuildContext context, bool isClockIn, Employee? employee) {
     pushScreen(
       context,
-      screen: ClockInPage(isClockIn: isClockIn),
+      screen: ClockInPage(isClockIn: isClockIn, employee: employee),
       withNavBar: false,
       pageTransitionAnimation: PageTransitionAnimation.fade,
     );
@@ -88,6 +89,7 @@ class _HomePageState extends State<HomePage> {
               ? Colors.orange.shade900
               : Colors.green.shade600;
           final isClockInAction = !isClockedIn;
+          final employee = state is HomeLoaded ? state.employee : null;
 
           return PersistentTabView(
             controller: _controller,
@@ -113,7 +115,7 @@ class _HomePageState extends State<HomePage> {
               ),
               PersistentTabConfig.noScreen(
                 onPressed: (context) =>
-                    _onClockButtonPressed(context, isClockInAction),
+                    _onClockButtonPressed(context, isClockInAction, employee),
                 item: ItemConfig(
                   icon: Container(
                     padding: const EdgeInsets.all(13),

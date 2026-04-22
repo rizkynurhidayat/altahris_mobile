@@ -43,16 +43,17 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       final bytes = await File(imagePath).readAsBytes();
       final base64Image = base64Encode(bytes);
 
+      final requestData = jsonEncode({
+        'employee_id': employeeId,
+        'lat': latitude,
+        'lng': longitude,
+        'notes': notes,
+        'image': 'data:image/jpeg;base64,$base64Image',
+      });
+
       final response = await dio.post(
         '/attendances/clock-in',
-        data: {
-          "distance_m": 0,
-          'employee_id': employeeId,
-          'lat': latitude.toString(),
-          'lng': longitude.toString(),
-          'notes': notes,
-          'image': 'data:image/jpeg;base64,$base64Image',
-        },
+        data: requestData,
         options: Options(contentType: 'application/json'),
       );
       print("CLOCK IN Rsponse: ");
@@ -90,16 +91,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     try {
       final bytes = await File(imagePath).readAsBytes();
       final base64Image = base64Encode(bytes);
-
+      final requestData = jsonEncode({
+        'employee_id': employeeId,
+        'lat': latitude,
+        'lng': longitude,
+        'notes': notes,
+        'image': 'data:image/jpeg;base64,$base64Image',
+      });
       final response = await dio.put(
         '/attendances/$attendanceId/clock-out',
-        data: {
-          'employee_id': employeeId,
-          'lat': latitude.toString(),
-          'lng': longitude.toString(),
-          'notes': notes,
-          'image': 'data:image/jpeg;base64,$base64Image',
-        },
+        data: requestData,
         options: Options(contentType: 'application/json'),
       );
 

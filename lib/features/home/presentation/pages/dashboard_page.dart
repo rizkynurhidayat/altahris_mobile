@@ -42,10 +42,10 @@ class _DashboardPageState extends State<DashboardPage> {
     await _homeBloc.stream.firstWhere((state) => state is! HomeLoading);
   }
 
-  void _navigateToAttendance(bool isClockIn) {
+  void _navigateToAttendance(bool isClockIn, Employee? employee) {
     pushScreen(
       context,
-      screen: ClockInPage(isClockIn: isClockIn),
+      screen: ClockInPage(isClockIn: isClockIn, employee: employee),
       withNavBar: false,
       pageTransitionAnimation: PageTransitionAnimation.fade,
     );
@@ -185,6 +185,15 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  String _getInitials(String name) {
+    if (name.isEmpty) return '??';
+    List<String> parts = name.trim().split(' ');
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return (parts.first[0][0] + parts.last[0][0]).toUpperCase();
+  }
+
   Widget _buildHeader(BuildContext context, HomeLoaded? state) {
     final String name = state?.employee.user.name ?? widget.user.name;
     final String role =
@@ -232,11 +241,20 @@ class _DashboardPageState extends State<DashboardPage> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 40,
-                backgroundImage: NetworkImage(
-                  'https://cdn-icons-png.flaticon.com/512/6069/6069202.png',
-                ), // Placeholder
+                backgroundColor: AppColors.primary,
+                // backgroundImage: NetworkImage(
+                //   'https://cdn-icons-png.flaticon.com/512/6069/6069202.png',
+                // ), // Placeholder
+                child: Text(
+                  _getInitials(name),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 15),
@@ -340,33 +358,32 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           const SizedBox(height: 20),
           Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: isClockedIn ? null : () => _navigateToAttendance(true),
-                  child: _buildTimeBox(
-                    'Clock In',
-                    _formatTime(latest?.clockIn),
-                    Colors.green,
-                  ),
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: isClockedIn ? null : () => _navigateToAttendance(true, employee),
+                child: _buildTimeBox(
+                  'Clock In',
+                  _formatTime(latest?.clockIn),
+                  Colors.green,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: GestureDetector(
-                  onTap: (!isClockedIn || isClockedOut)
-                      ? null
-                      : () => _navigateToAttendance(false),
-                  child: _buildTimeBox(
-                    'Clock Out',
-                    _formatTime(latest?.clockOut),
-                    Colors.red,
-                  ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: GestureDetector(
+                onTap: (!isClockedIn || isClockedOut)
+                    ? null
+                    : () => _navigateToAttendance(false, employee),
+                child: _buildTimeBox(
+                  'Clock Out',
+                  _formatTime(latest?.clockOut),
+                  Colors.red,
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+          ),        ],
       ),
     );
   }
