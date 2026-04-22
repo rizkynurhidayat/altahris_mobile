@@ -68,18 +68,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     try {
       print("REFRESH TOKEN");
-      print("old token: $refreshToken");
-      final response = await dio.post(
-        '/auth/refresh',
-        options: Options(
-          headers: {
-            "Authorization": "Bearer $refreshToken"
-          }
-        ),
-      );
+      // We don't manually set the header here because DioClient interceptor 
+      // will automatically add the old 'token' from cache as Bearer token.
+      final response = await dio.post('/auth/refresh');
 
       if (response.statusCode == 200) {
-      print("NEW token: ${response.data}");
+        print("NEW token: ${response.data}");
         return response.data['data'];
       } else {
         throw ServerFailure(response.data['message'] ?? 'Refresh token failed');
