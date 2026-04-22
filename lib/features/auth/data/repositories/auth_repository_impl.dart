@@ -58,4 +58,23 @@ class AuthRepositoryImpl implements AuthRepository {
       await homeLocalDataSource.clearCache();
     }
   }
+
+  @override
+  Future<Either<Failure, void>> refreshToken() async {
+    try {
+      final user = await localDataSource.getCachedUser();
+      if (user != null && user.refreshToken != null) {
+        final result = await remoteDataSource.refreshToken(user.refreshToken!);
+        final updatedUser = user.copyWith(
+          token: result['access_token'],
+          refreshToken: result['refresh_token'] ?? user.refreshToken,
+        );
+        await localDataSource.cacheUser(updatedUser);
+        return const Right(null);
+      }
+      return Left(ServerFailure('No refresh token available'));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

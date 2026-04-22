@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:altahris_mobile/main.dart';
+import 'package:altahris_mobile/features/home/presentation/pages/home_page.dart';
+import 'package:altahris_mobile/features/auth/presentation/pages/login_page.dart';
+import 'package:flutter/material.dart';
 
 class DioClient {
   final Dio dio;
-  bool _isRefreshing = false;
-  final List<Map<String, dynamic>> _failedRequests = [];
+  int _tokenErrorCount = 0;
 
   DioClient() : dio = Dio(
     BaseOptions(
@@ -34,6 +37,11 @@ class DioClient {
         } catch (_) {}
         return handler.next(options);
       },
+      onResponse: (response, handler) {
+        // Reset count on successful response
+        _tokenErrorCount = 0;
+        return handler.next(response);
+      },
       onError: (DioException e, handler) async {
         final responseData = e.response?.data;
         String message = '';
@@ -53,105 +61,31 @@ class DioClient {
                            message.contains('token not found');
 
         if (isTokenError) {
-          print('--- Token Error Detected: $message (Status: ${e.response?.statusCode}) ---');
+          _tokenErrorCount++;
+          print('--- Token Error Detected (Count: $_tokenErrorCount): $message ---');
           
-          if (e.requestOptions.path.contains('/auth/refresh')) {
-            print('--- Refresh token itself failed. Clearing cache. ---');
+          if (_tokenErrorCount >= 2) {
+            print('--- Token still invalid after 2 attempts. Redirecting to Login. ---');
+            _tokenErrorCount = 0; // Reset counter
             await sl<AuthLocalDataSource>().clearCache();
-            return handler.next(e);
-          }
-
-          // If a refresh is already in progress, queue the request
-          if (_isRefreshing) {
-            print('--- Refresh already in progress, queuing request: ${e.requestOptions.path} ---');
-            _failedRequests.add({
-              'options': e.requestOptions,
-              'handler': handler,
-            });
-            return;
-          }
-
-          _isRefreshing = true;
-
-          try {
-            final localDataSource = sl<AuthLocalDataSource>();
-            final user = await localDataSource.getCachedUser();
-
-            if (user != null && user.refreshToken != null) {
-              print('--- Attempting to Refresh Token ---');
-              
-              // Use a fresh Dio instance for refresh to avoid interceptor recursion
-              final refreshDio = Dio(BaseOptions(baseUrl: 'https://altahris.com/api'));
-              final refreshResponse = await refreshDio.post(
-                '/auth/refresh',
-                data: {'refresh_token': user.refreshToken},
+            
+            if (navigatorKey.currentState != null) {
+              navigatorKey.currentState!.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
               );
-
-              if (refreshResponse.statusCode == 200) {
-                final tokens = refreshResponse.data['data'];
-                final newAccessToken = tokens['access_token'];
-                // Some APIs might not return a new refresh token, keep the old one if so
-                final newRefreshToken = tokens['refresh_token'] ?? user.refreshToken;
-
-                print('--- Token Refreshed Successfully ---');
-
-                final updatedUser = user.copyWith(
-                  token: newAccessToken,
-                  refreshToken: newRefreshToken,
+            }
+          } else {
+            print('--- First invalid token error. Waiting 3s and going Home. ---');
+            Future.delayed(const Duration(seconds: 3), () async {
+              final user = await sl<AuthLocalDataSource>().getCachedUser();
+              if (user != null && navigatorKey.currentState != null) {
+                navigatorKey.currentState!.pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => HomePage(user: user)),
+                  (route) => false,
                 );
-                await localDataSource.cacheUser(updatedUser);
-                
-                // Retry original request
-                print('--- Retrying original request: ${e.requestOptions.path} ---');
-                e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-                
-                // Fix: ensure the new token is used for retried requests
-                final response = await dio.request(
-                  e.requestOptions.path,
-                  data: e.requestOptions.data,
-                  queryParameters: e.requestOptions.queryParameters,
-                  options: Options(
-                    method: e.requestOptions.method,
-                    headers: e.requestOptions.headers,
-                  ),
-                );
-                handler.resolve(response);
-
-                // Retry all other queued requests
-                for (var request in _failedRequests) {
-                  final RequestOptions options = request['options'];
-                  final ErrorInterceptorHandler requestHandler = request['handler'];
-                  
-                  print('--- Retrying queued request: ${options.path} ---');
-                  options.headers['Authorization'] = 'Bearer $newAccessToken';
-                  final retryResponse = await dio.request(
-                    options.path,
-                    data: options.data,
-                    queryParameters: options.queryParameters,
-                    options: Options(
-                      method: options.method,
-                      headers: options.headers,
-                    ),
-                  );
-                  requestHandler.resolve(retryResponse);
-                }
-                _failedRequests.clear();
-                return;
               }
-            }
-          } catch (refreshError) {
-            print('--- Refresh Token Failed: $refreshError ---');
-            
-            // Reject all queued requests
-            for (var request in _failedRequests) {
-              final ErrorInterceptorHandler requestHandler = request['handler'];
-              requestHandler.reject(e);
-            }
-            _failedRequests.clear();
-            
-            await sl<AuthLocalDataSource>().clearCache();
-          } finally {
-            _isRefreshing = false;
+            });
           }
         }
         return handler.next(e);

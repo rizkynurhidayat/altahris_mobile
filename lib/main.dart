@@ -11,6 +11,8 @@ import 'package:altahris_mobile/features/leave/presentation/bloc/leave_bloc.dart
 import 'package:altahris_mobile/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:altahris_mobile/features/payslip/presentation/bloc/payslip_bloc.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Altahris Mobile',
         theme: AppTheme.light,

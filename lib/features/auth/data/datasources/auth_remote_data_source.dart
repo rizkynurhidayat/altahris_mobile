@@ -67,6 +67,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     try {
+      print("REFRESH TOKEN");
+      print("old token: $refreshToken");
       final response = await dio.post(
         '/auth/refresh',
         options: Options(
@@ -77,6 +79,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
+      print("NEW token: ${response.data}");
         return response.data['data'];
       } else {
         throw ServerFailure(response.data['message'] ?? 'Refresh token failed');

@@ -218,7 +218,7 @@ class _ClockInPageState extends State<ClockInPage> {
           backgroundColor: Colors.grey[50],
           appBar: AppBar(
             title: Text(
-              widget.isClockIn ? 'Clock IN' : 'Clock OUT',
+              widget.isClockIn ? 'Clock In' : 'Clock Out',
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 color: Colors.black,
@@ -459,6 +459,24 @@ class _ClockInPageState extends State<ClockInPage> {
                   width: 12,
                   height: 12,
                   child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else if (_latitude == null || _longitude == null)
+                GestureDetector(
+                  onTap: _getCurrentLocation,
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Retry',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.refresh, size: 14, color: AppColors.primary),
+                    ],
+                  ),
                 ),
             ],
           ),
@@ -474,7 +492,11 @@ class _ClockInPageState extends State<ClockInPage> {
           else
             Text(
               _isLocating ? 'Determining your position...' : 'Location not acquired',
-              style: TextStyle(fontSize: 13, color: Colors.grey[600], fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
             ),
         ],
       ),
@@ -523,7 +545,7 @@ class _ClockInPageState extends State<ClockInPage> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: isLoading ? null : () => _submitAttendance(context),
+                onPressed: isLoading ? null : (_longitude == null && _latitude == null) ? null :() => _submitAttendance(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
@@ -535,7 +557,7 @@ class _ClockInPageState extends State<ClockInPage> {
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        'SUBMIT ${widget.isClockIn ? 'IN' : 'OUT'}',
+                        'CLOCK ${widget.isClockIn ? 'IN' : 'OUT'}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
