@@ -12,6 +12,7 @@ abstract class HomeRemoteDataSource {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   });
   Future<void> clockOut({
     required String attendanceId,
@@ -19,6 +20,7 @@ abstract class HomeRemoteDataSource {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   });
   Future<List<AttendanceModel>> getAttendance(String idEmployee);
   Future<EmployeeModel> getEmployeeMe();
@@ -35,6 +37,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     try {
       final bytes = await File(imagePath).readAsBytes();
@@ -43,16 +46,17 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       final response = await dio.post(
         '/attendances/clock-in',
         data: {
+          "distance_m": 0,
           'employee_id': employeeId,
-          'latitude': latitude.toString(),
-          'longitude': longitude.toString(),
+          'lat': latitude.toString(),
+          'lng': longitude.toString(),
+          'notes': notes,
           'image': 'data:image/jpeg;base64,$base64Image',
         },
-        options: Options(
-          contentType: 'application/json',
-        ),
+        options: Options(contentType: 'application/json'),
       );
-
+      print("CLOCK IN Rsponse: ");
+      print(response.data);
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw ServerFailure(response.data['message'] ?? 'Failed to clock in');
       }
@@ -64,8 +68,12 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       final message =
           e.response?.data['message'] ?? e.message ?? 'Server error';
+      print("CLOCK IN Dio Rsponse: ${e.response!.statusCode}");
+      print(message);
       throw ServerFailure(message);
     } catch (e) {
+      print("CLOCK IN Rsponse: ");
+      print(e.toString());
       throw ServerFailure(e.toString());
     }
   }
@@ -77,6 +85,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     try {
       final bytes = await File(imagePath).readAsBytes();
@@ -86,18 +95,19 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         '/attendances/$attendanceId/clock-out',
         data: {
           'employee_id': employeeId,
-          'latitude': latitude.toString(),
-          'longitude': longitude.toString(),
+          'lat': latitude.toString(),
+          'lng': longitude.toString(),
+          'notes': notes,
           'image': 'data:image/jpeg;base64,$base64Image',
         },
-        options: Options(
-          contentType: 'application/json',
-        ),
+        options: Options(contentType: 'application/json'),
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw ServerFailure(response.data['message'] ?? 'Failed to clock out');
       }
+      print("CLOCK OUT Rsponse: ");
+      print(response.data);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
@@ -139,9 +149,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         }
 
         return listToMap.map((e) => AttendanceModel.fromJson(e)).toList();
-      }
-      
-      else {
+      } else {
         throw ServerFailure(
           response.data['message'] ?? 'Failed to fetch attendance data',
         );

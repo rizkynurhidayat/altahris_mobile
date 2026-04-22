@@ -11,11 +11,13 @@ class ClockInUseCase {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     return await repository.clockIn(
       imagePath: imagePath,
       latitude: latitude,
       longitude: longitude,
+      notes: notes,
     );
   }
 }

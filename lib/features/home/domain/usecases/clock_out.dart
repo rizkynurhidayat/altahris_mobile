@@ -11,11 +11,13 @@ class ClockOutUseCase {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     return await repository.clockOut(
       imagePath: imagePath,
       latitude: latitude,
       longitude: longitude,
+      notes: notes,
     );
   }
 }

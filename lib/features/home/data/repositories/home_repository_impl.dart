@@ -57,6 +57,7 @@ class HomeRepositoryImpl implements HomeRepository {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     try {
       Employee? employeeMe = await homeLocalDataSource.getCachedEmployee();
@@ -71,6 +72,7 @@ class HomeRepositoryImpl implements HomeRepository {
         imagePath: imagePath,
         latitude: latitude,
         longitude: longitude,
+        notes: notes,
       );
 
       return const Right(null);
@@ -85,6 +87,7 @@ class HomeRepositoryImpl implements HomeRepository {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   }) async {
     try {
       Employee? employeeMe = await homeLocalDataSource.getCachedEmployee();
@@ -110,6 +113,7 @@ class HomeRepositoryImpl implements HomeRepository {
         imagePath: imagePath,
         latitude: latitude,
         longitude: longitude,
+        notes: notes,
       );
 
       return const Right(null);

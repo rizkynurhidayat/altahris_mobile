@@ -38,15 +38,30 @@ class _HomePageState extends State<HomePage> {
     if (state is HomeLoaded && state.attendance.isNotEmpty) {
       final latest = state.attendance.first;
       final now = DateTime.now();
+      
       try {
-        final clockInDate = DateTime.parse(latest.clockIn);
-        final isToday =
-            clockInDate.year == now.year &&
-            clockInDate.month == now.month &&
-            clockInDate.day == now.day;
+        // Try parsing from 'date' field first as it's usually just the date
+        DateTime? attendanceDate;
+        if (latest.date.isNotEmpty) {
+          attendanceDate = DateTime.parse(latest.date);
+        } else if (latest.clockIn.isNotEmpty) {
+          attendanceDate = DateTime.parse(latest.clockIn);
+        }
+
+        if (attendanceDate == null) return false;
+
+        final isToday = attendanceDate.year == now.year &&
+            attendanceDate.month == now.month &&
+            attendanceDate.day == now.day;
 
         // Check if clocked in but NOT clocked out yet
-        return isToday && latest.clockOut == '--:--';
+        // A user is "Clocked In" if they have a clockIn but no valid clockOut
+        final hasClockedIn = latest.clockIn.isNotEmpty;
+        final hasNotClockedOut = latest.clockOut == '--:--' || 
+                               latest.clockOut.isEmpty || 
+                               latest.clockOut == 'null';
+
+        return isToday && hasClockedIn && hasNotClockedOut;
       } catch (_) {}
     }
     return false;

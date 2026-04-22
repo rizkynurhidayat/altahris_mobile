@@ -10,10 +10,12 @@ abstract class HomeRepository {
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   });
   Future<Either<Failure, void>> clockOut({
     required String imagePath,
     required double latitude,
     required double longitude,
+    required String notes,
   });
 }

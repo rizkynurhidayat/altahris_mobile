@@ -69,6 +69,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       imagePath: event.imagePath,
       latitude: event.latitude,
       longitude: event.longitude,
+      notes: event.notes,
     );
 
     await result.fold(
@@ -91,6 +92,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       imagePath: event.imagePath,
       latitude: event.latitude,
       longitude: event.longitude,
+      notes: event.notes,
     );
 
     await result.fold(
