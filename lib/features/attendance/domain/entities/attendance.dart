@@ -10,6 +10,16 @@ class Attendance extends Equatable {
   final int overtimeHours;
   final String status;
   final String updatedAt;
+  final double? clockInLat;
+  final double? clockInLng;
+  final double? clockInDistanceM;
+  final String? clockInDistanceStatus;
+  final String? clockInPhoto;
+  final double? clockOutLat;
+  final double? clockOutLng;
+  final double? clockOutDistanceM;
+  final String? clockOutDistanceStatus;
+  final String? clockOutPhoto;
 
   const Attendance({
     required this.clockIn,
@@ -21,6 +31,16 @@ class Attendance extends Equatable {
     required this.overtimeHours,
     required this.status,
     required this.updatedAt,
+    this.clockInLat,
+    this.clockInLng,
+    this.clockInDistanceM,
+    this.clockInDistanceStatus,
+    this.clockInPhoto,
+    this.clockOutLat,
+    this.clockOutLng,
+    this.clockOutDistanceM,
+    this.clockOutDistanceStatus,
+    this.clockOutPhoto,
   });
 
   @override
@@ -34,5 +54,15 @@ class Attendance extends Equatable {
     overtimeHours,
     status,
     updatedAt,
+    clockInLat,
+    clockInLng,
+    clockInDistanceM,
+    clockInDistanceStatus,
+    clockInPhoto,
+    clockOutLat,
+    clockOutLng,
+    clockOutDistanceM,
+    clockOutDistanceStatus,
+    clockOutPhoto,
   ];
 }

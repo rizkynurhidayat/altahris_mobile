@@ -1,3 +1,4 @@
+import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 import 'package:dio/dio.dart';
 import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
@@ -68,6 +69,7 @@ class DioClient {
             _tokenErrorCount = 0;
             _isRefreshing = false;
             await sl<AuthLocalDataSource>().clearCache();
+            await sl<HomeLocalDataSources>().clearCache();
             
             if (navigatorKey.currentContext != null) {
               _showNotification(

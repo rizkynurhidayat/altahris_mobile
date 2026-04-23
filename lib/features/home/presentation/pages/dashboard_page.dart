@@ -44,7 +44,7 @@ class _DashboardPageState extends State<DashboardPage> {
     try {
       await sl<RefreshTokenUseCase>().execute();
     } catch (_) {}
-    
+
     // 2. Fetch Home Data
     _homeBloc.add(FetchHomeData());
     await _homeBloc.stream.firstWhere((state) => state is! HomeLoading);
@@ -317,10 +317,11 @@ class _DashboardPageState extends State<DashboardPage> {
         : 'Regular Shift (08:00-17:00)';
 
     final isClockedIn = latest != null && latest.clockIn.isNotEmpty;
-    final isClockedOut = latest != null && 
-                        latest.clockOut.isNotEmpty && 
-                        latest.clockOut != '--:--' && 
-                        latest.clockOut != 'null';
+    final isClockedOut =
+        latest != null &&
+        latest.clockOut.isNotEmpty &&
+        latest.clockOut != '--:--' &&
+        latest.clockOut != 'null';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -366,32 +367,35 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           const SizedBox(height: 20),
           Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: isClockedIn ? null : () => _navigateToAttendance(true, employee),
-                child: _buildTimeBox(
-                  'Clock In',
-                  _formatTime(latest?.clockIn),
-                  Colors.green,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: isClockedIn
+                      ? null
+                      : () => _navigateToAttendance(true, employee),
+                  child: _buildTimeBox(
+                    'Clock In',
+                    _formatTime(latest?.clockIn),
+                    Colors.green,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: GestureDetector(
-                onTap: (!isClockedIn || isClockedOut)
-                    ? null
-                    : () => _navigateToAttendance(false, employee),
-                child: _buildTimeBox(
-                  'Clock Out',
-                  _formatTime(latest?.clockOut),
-                  Colors.red,
+              const SizedBox(width: 16),
+              Expanded(
+                child: GestureDetector(
+                  onTap: (!isClockedIn || isClockedOut)
+                      ? null
+                      : () => _navigateToAttendance(false, employee),
+                  child: _buildTimeBox(
+                    'Clock Out',
+                    _formatTime(latest?.clockOut),
+                    Colors.red,
+                  ),
                 ),
               ),
-            ),
-          ],
-          ),        ],
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -541,6 +545,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       .toList(),
                 );
               } else if (state is HomeFailure) {
+                print('is empty? ');
+
                 return Center(child: Text(state.message));
               }
               return const SizedBox();
