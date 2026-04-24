@@ -14,17 +14,37 @@ class IntroductionPage extends StatefulWidget {
 
 class _IntroductionPageState extends State<IntroductionPage> {
   final introKey = GlobalKey<IntroductionScreenState>();
+  bool _permissionsGranted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+  }
+
+  Future<void> _checkPermissions() async {
+    final camera = await Permission.camera.isGranted;
+    final location = await Permission.locationWhenInUse.isGranted;
+    final storage = await Permission.storage.isGranted;
+    final photos = await Permission.photos.isGranted;
+
+    if (mounted) {
+      setState(() {
+        _permissionsGranted = camera && location && (storage || photos);
+      });
+    }
+  }
 
   Future<void> _requestPermissions() async {
     // Request multiple permissions at once
     await [
-      Permission.location,
+      Permission.locationWhenInUse,
       Permission.camera,
       Permission.storage,
       Permission.photos,
     ].request();
 
-    _onIntroEnd(context);
+    await _checkPermissions();
   }
 
   void _onIntroEnd(context) async {
@@ -51,6 +71,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
         color: AppColors.primary,
       ),
       bodyTextStyle: bodyStyle,
+      // titlePadding: EdgeInsets.only(top: 24),
       bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
       pageColor: Colors.white,
       imagePadding: EdgeInsets.zero,
@@ -59,11 +80,10 @@ class _IntroductionPageState extends State<IntroductionPage> {
     return IntroductionScreen(
       key: introKey,
       globalBackgroundColor: Colors.white,
-      allowImplicitScrolling: true, // Prevent skip by swiping
-      // freeze: true, // Disable manual swipe to force user to click buttons
+      allowImplicitScrolling: true,
       pages: [
         PageViewModel(
-          title: "Welcome to AltaHRIS",
+          title: "Welcome to Alta",
           body:
               "Smart solution for your attendance management and HR needs in your hand.",
           image: _buildImage('assets/logo/logo.png', 200),
@@ -78,21 +98,71 @@ class _IntroductionPageState extends State<IntroductionPage> {
         ),
         PageViewModel(
           title: "App Permissions",
-          body:
-              "For the best experience, AltaHRIS requires access to your Location, Camera, and Media.",
           image: _buildImage('assets/img/payslip_donwload_confirm.png', 300),
           decoration: pageDecoration,
+          bodyWidget: SizedBox(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  "For the best experience, AltaHRIS requires access to your Location, Camera, and Media.",
+                  style: bodyStyle,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _permissionsGranted
+                        ? null
+                        : () {
+                            _requestPermissions();
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      _permissionsGranted
+                          ? 'Permissions Granted'
+                          : 'Allow Permissions',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
-      onDone: () => _requestPermissions(),
-      onSkip: () => {}, // No skip allowed
+      onDone: _permissionsGranted ? () => _onIntroEnd(context) : () {},
+      onSkip: () => {},
       showSkipButton: false,
       showNextButton: true,
-      showDoneButton:
-          true, // We use the button in the footer of the last page or custom logic
-      // next: const Icon(Icons.arrow_forward, color: AppColors.primary),
+      showDoneButton: true,
       next: const Text("Next"),
-      done: const Text("Allow"),
+      doneStyle: ElevatedButton.styleFrom(
+        backgroundColor: _permissionsGranted ? AppColors.primary : Colors.transparent,
+        foregroundColor: Colors.grey,
+        // disabledBackgroundColor: Colors.grey,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
+      ),
+      done: Text(
+        "Done",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: _permissionsGranted ? Colors.white : Colors.grey,
+        ),
+      ),
       curve: Curves.fastLinearToSlowEaseIn,
       controlsMargin: const EdgeInsets.all(16),
       controlsPadding: const EdgeInsets.fromLTRB(8, 4, 8, 4),

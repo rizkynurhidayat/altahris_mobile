@@ -56,8 +56,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         data: requestData,
         options: Options(contentType: 'application/json'),
       );
-      print("CLOCK IN Rsponse: ");
-      print(response.data);
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw ServerFailure(response.data['message'] ?? 'Failed to clock in');
       }
@@ -69,12 +67,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       final message =
           e.response?.data['message'] ?? e.message ?? 'Server error';
-      print("CLOCK IN Dio Rsponse: ${e.response!.statusCode}");
-      print(message);
       throw ServerFailure(message);
     } catch (e) {
-      print("CLOCK IN Rsponse: ");
-      print(e.toString());
       throw ServerFailure(e.toString());
     }
   }
@@ -107,8 +101,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw ServerFailure(response.data['message'] ?? 'Failed to clock out');
       }
-      print("CLOCK OUT Rsponse: ");
-      print(response.data);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {

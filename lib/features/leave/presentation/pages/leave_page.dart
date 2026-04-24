@@ -1,3 +1,4 @@
+import 'package:altahris_mobile/features/leave/domain/entities/leave.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
@@ -63,8 +64,8 @@ class _LeavePageState extends State<LeavePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _selectedTab == 0
-                              ? _buildAnnualView()
-                              : _buildTypesView(),
+                              ? _buildAnnualView(state.leaves)
+                              : _buildTypesView(state.leaves),
                           const SizedBox(height: 24),
                           const Text(
                             'History',
@@ -160,7 +161,18 @@ class _LeavePageState extends State<LeavePage> {
     );
   }
 
-  Widget _buildAnnualView() {
+  int _calculateDays(List<Leave> leaves, String type) {
+    return leaves
+        .where((l) =>
+            l.leaveType == type && l.status.toLowerCase() == 'approved')
+        .fold(0, (sum, l) => sum + l.totalDays);
+  }
+
+  Widget _buildAnnualView(List<Leave> leaves) {
+    final usedDays = _calculateDays(leaves, 'cuti_tahunan');
+    const maxDays = 12;
+    final remainingDays = (maxDays - usedDays).clamp(0, maxDays);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -190,22 +202,22 @@ class _LeavePageState extends State<LeavePage> {
           const Divider(),
           const SizedBox(height: 16),
           RichText(
-            text: const TextSpan(
-              style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
+            text: TextSpan(
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 18),
               children: [
                 TextSpan(
-                  text: '5',
-                  style: TextStyle(
+                  text: '$usedDays',
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
                   ),
                 ),
-                TextSpan(
-                  text: '/12',
+                const TextSpan(
+                  text: '/$maxDays',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                 ),
-                TextSpan(
+                const TextSpan(
                   text: ' Days used',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
@@ -216,7 +228,7 @@ class _LeavePageState extends State<LeavePage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: 5 / 12,
+              value: usedDays / maxDays,
               minHeight: 12,
               backgroundColor: Colors.grey.shade200,
               valueColor: const AlwaysStoppedAnimation<Color>(
@@ -226,7 +238,7 @@ class _LeavePageState extends State<LeavePage> {
           ),
           const SizedBox(height: 12),
           Text(
-            '*7 Days Remaining',
+            '*$remainingDays Days Remaining',
             style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
           ),
         ],
@@ -234,42 +246,42 @@ class _LeavePageState extends State<LeavePage> {
     );
   }
 
-  Widget _buildTypesView() {
+  Widget _buildTypesView(List<Leave> leaves) {
     final types = [
       {
+        'id': 'cuti_tahunan',
+        'name': 'Annual Leave',
+        'icon': 'assets/icon/period_leave.png',
+        'color': Colors.red,
+      },
+      {
+        'id': 'cuti_sakit',
         'name': 'Sick Leave',
-        'taken': '2 Days Taken',
         'icon': 'assets/icon/Sick_leave.png',
         'color': Colors.red,
       },
       {
-        'name': 'Special Leave',
-        'taken': '0 Days Taken',
-        'icon': 'assets/icon/special_leave.png',
-        'color': Colors.orange,
-      },
-      {
-        'name': 'Unpaid Leave',
-        'taken': '0 Days Taken',
-        'icon': 'assets/icon/unpaid_leave.png',
-        'color': Colors.deepOrange,
-      },
-      {
-        'name': 'Hajj Leave',
-        'taken': '0 Days Taken',
-        'icon': 'assets/icon/hajj_leave.png',
-        'color': Colors.orange,
-      },
-      {
+        'id': 'cuti_melahirkan',
         'name': 'Maternity Leave',
-        'taken': '0 Days Taken',
         'icon': 'assets/icon/maternity_leave.png',
         'color': Colors.orange,
       },
       {
-        'name': 'Period Leave',
-        'taken': '0 Days Taken',
-        'icon': 'assets/icon/period_leave.png',
+        'id': 'cuti_besar',
+        'name': 'Special Leave',
+        'icon': 'assets/icon/special_leave.png',
+        'color': Colors.deepOrange,
+      },
+      {
+        'id': 'izin',
+        'name': 'Permission',
+        'icon': 'assets/icon/unpaid_leave.png',
+        'color': Colors.orange,
+      },
+      {
+        'id': 'dinas_luar',
+        'name': 'Business Trip',
+        'icon': 'assets/icon/hajj_leave.png',
         'color': Colors.orange,
       },
     ];
@@ -286,6 +298,8 @@ class _LeavePageState extends State<LeavePage> {
       itemCount: types.length,
       itemBuilder: (context, index) {
         final type = types[index];
+        final takenDays = _calculateDays(leaves, type['id'] as String);
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
@@ -297,8 +311,10 @@ class _LeavePageState extends State<LeavePage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-               
-                child:  Image.asset(type['icon'] as String, scale: 4, ),
+                child: Image.asset(
+                  type['icon'] as String,
+                  scale: 4,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -317,7 +333,7 @@ class _LeavePageState extends State<LeavePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      type['taken'] as String,
+                      '$takenDays Days Taken',
                       style: TextStyle(
                         fontSize: 10,
                         color: Colors.grey.shade400,
