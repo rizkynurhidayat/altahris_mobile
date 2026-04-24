@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import 'login_page.dart';
+import 'introduction_page.dart';
 import '../../../home/presentation/pages/home_page.dart';
 
 class SplashPage extends StatefulWidget {
@@ -53,23 +55,42 @@ class _SplashPageState extends State<SplashPage>
     });
   }
 
-  void _navigateBasedOnState(AuthState state) {
+  Future<void> _navigateBasedOnState(AuthState state) async {
     if (_isNavigated) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final bool isFirstRun = prefs.getBool('is_first_run') ?? true;
+
+    if (isFirstRun) {
+      _isNavigated = true;
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => const IntroductionPage(),
+          ),
+        );
+      }
+      return;
+    }
 
     if (state is AuthAuthenticated) {
       _isNavigated = true;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomePage(user: state.user),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => HomePage(user: state.user),
+          ),
+        );
+      }
     } else if (state is AuthUnauthenticated || state is AuthFailure) {
       _isNavigated = true;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const LoginPage(),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => const LoginPage(),
+          ),
+        );
+      }
     }
   }
 
@@ -107,7 +128,7 @@ class _SplashPageState extends State<SplashPage>
                     children: [
                        Image.asset(
                           'assets/logo/logo.png',
-                          width: 100,
+                          width: 200,
                         ),
                       const SizedBox(height: 24),
                       const Text(
