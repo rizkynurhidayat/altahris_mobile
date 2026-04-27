@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 
 class DioClient {
   final Dio dio;
-  int _tokenErrorCount = 0;
-  bool _isRefreshing = false;
 
   DioClient() : dio = Dio(
     BaseOptions(
@@ -23,7 +21,7 @@ class DioClient {
       },
     ),
   ) {
-    dio.interceptors.add(InterceptorsWrapper(
+    dio.interceptors.add(QueuedInterceptorsWrapper(
       onRequest: (options, handler) async {
         if (options.path.contains('/auth/login')) {
           return handler.next(options);
@@ -39,7 +37,6 @@ class DioClient {
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        _tokenErrorCount = 0;
         return handler.next(response);
       },
       onError: (DioException e, handler) async {
@@ -61,90 +58,105 @@ class DioClient {
                            message.contains('token not found');
 
         if (isTokenError && !e.requestOptions.path.contains('/auth/login')) {
-          _tokenErrorCount++;
-          print('--- Token Error Detected (Count: $_tokenErrorCount): $message ---');
-          
-          if (_tokenErrorCount >= 2 || e.requestOptions.path.contains('/auth/refresh')) {
-            print('--- Token still invalid after refresh attempt. Redirecting to Login. ---');
-            _tokenErrorCount = 0;
-            _isRefreshing = false;
-            await sl<AuthLocalDataSource>().clearCache();
-            await sl<HomeLocalDataSources>().clearCache();
-            
-            if (navigatorKey.currentContext != null) {
-              _showNotification(
-                "Sesi Anda telah berakhir secara permanen. Silakan login kembali.",
-                isError: true,
-              );
-              navigatorKey.currentState!.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            }
+          // If we are already on the refresh endpoint and it fails, we must logout
+          if (e.requestOptions.path.contains('/auth/refresh')) {
+            print('--- Refresh Token Failed. Redirecting to Login. ---');
+            await _handleLogout();
             return handler.next(e);
           }
-
-          if (_isRefreshing) {
-            // Wait for refresh to complete then retry this request
-            return _retryRequest(e.requestOptions, handler);
-          }
-
-          _isRefreshing = true;
-
-          // Notify user 
-          _showNotification("Sesi berakhir. Memperbarui akses Anda...");
 
           try {
             final localDataSource = sl<AuthLocalDataSource>();
             final user = await localDataSource.getCachedUser();
 
-            if (user != null && user.token != null) {
+            if (user != null) {
+              final currentToken = user.token;
+              final requestToken = e.requestOptions.headers['Authorization']
+                  ?.toString()
+                  .replaceFirst('Bearer ', '');
+
+              // Deduplication: If the token has already been refreshed by another request
+              if (currentToken != null && currentToken != requestToken) {
+                print('--- Token already refreshed by another request. Retrying... ---');
+                return _retryRequest(e.requestOptions, handler);
+              }
+
+              // Notify user 
+              _showNotification("Sesi berakhir. Memperbarui akses Anda...");
+
+              print('--- Attempting to Refresh Token ---');
+              
               // Perform Refresh Token using a separate Dio instance to avoid interceptor recursion
-              final refreshDio = Dio(BaseOptions(baseUrl: 'https://altahris.com/api'));
+              final refreshDio = Dio(BaseOptions(
+                baseUrl: 'https://altahris.com/api',
+                connectTimeout: const Duration(seconds: 15),
+                receiveTimeout: const Duration(seconds: 15),
+              ));
+              
               final refreshResponse = await refreshDio.post(
                 '/auth/refresh',
                 options: Options(
                   headers: {
-                    'Authorization': 'Bearer ${user.token}',
+                    'Authorization': 'Bearer ${user.refreshToken}',
                     'Accept': 'application/json',
                   },
                 ),
               );
 
               if (refreshResponse.statusCode == 200) {
-                final tokens = refreshResponse.data['data'];
-                final newAccessToken = tokens['access_token'];
-                final newRefreshToken = tokens['refresh_token'] ?? user.refreshToken;
+                final responseMap = refreshResponse.data;
+                // Handling different potential response structures
+                final dynamic data = responseMap['data'];
+                String? newAccessToken;
+                String? newRefreshToken;
 
-                print('--- Token Refreshed Successfully ---');
+                if (data is Map) {
+                  newAccessToken = data['access_token'] ?? data['token'];
+                  newRefreshToken = data['refresh_token'];
+                }
 
-                final updatedUser = user.copyWith(
-                  token: newAccessToken,
-                  refreshToken: newRefreshToken,
-                );
-                await localDataSource.cacheUser(updatedUser);
-                
-                _isRefreshing = false;
-                
-                // Retry the original request
-                return _retryRequest(e.requestOptions, handler);
+                if (newAccessToken != null) {
+                  print('--- Token Refreshed Successfully ---');
+                  final updatedUser = user.copyWith(
+                    token: newAccessToken,
+                    refreshToken: newRefreshToken ?? user.refreshToken,
+                  );
+                  await localDataSource.cacheUser(updatedUser);
+                  
+                  // Retry the original request
+                  return _retryRequest(e.requestOptions, handler);
+                }
               }
             }
           } catch (refreshError) {
             print('--- Background Refresh Failed: $refreshError ---');
-            _isRefreshing = false;
-            await sl<AuthLocalDataSource>().clearCache();
-            if (navigatorKey.currentState != null) {
-              navigatorKey.currentState!.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            }
+            await _handleLogout();
+            return handler.next(e);
           }
         }
         return handler.next(e);
       },
     ));
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await sl<AuthLocalDataSource>().clearCache();
+      await sl<HomeLocalDataSources>().clearCache();
+      
+      if (navigatorKey.currentContext != null) {
+        _showNotification(
+          "Sesi Anda telah berakhir. Silakan login kembali.",
+          isError: true,
+        );
+        navigatorKey.currentState!.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      print('Error during logout: $e');
+    }
   }
 
   void _showNotification(String message, {bool isError = false}) {
