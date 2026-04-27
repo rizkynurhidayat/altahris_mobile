@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               PersistentTabConfig(
-                screen: ProfilePage(userName: widget.user.name),
+                screen: ProfilePage(employee: employee),
                 item: ItemConfig(
                   icon: const ImageIcon(AssetImage('assets/icon/user.png')),
                   title: "Account",
