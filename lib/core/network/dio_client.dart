@@ -1,10 +1,8 @@
-import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 import 'package:dio/dio.dart';
 import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:altahris_mobile/main.dart';
-import 'package:altahris_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +60,6 @@ class DioClient {
       final user = await localDataSource.getCachedUser();
 
       if (user == null || user.token == null) {
-        // await _handleLogout();
         _showNotification(
           "No user data, please login first.",
           isError: true,
@@ -107,33 +104,10 @@ class DioClient {
       );
     } catch (e) {
       debugPrint('Error during token refresh: $e');
-      // await _handleLogout();
       _showNotification(
         "error refreshing token. Please log in again.",
         isError: true,
       );
-    }
-  }
-
-  Future<void> _handleLogout() async {
-    try {
-      await sl<AuthLocalDataSource>().clearCache();
-      try {
-        await sl<HomeLocalDataSources>().clearCache();
-      } catch (_) {}
-
-      if (navigatorKey.currentContext != null) {
-        _showNotification(
-          "Your session has ended. Please log in again.",
-          isError: true,
-        );
-        navigatorKey.currentState!.pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      debugPrint('Error during logout: $e');
     }
   }
 
