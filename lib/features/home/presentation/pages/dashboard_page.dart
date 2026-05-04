@@ -8,8 +8,6 @@ import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart'
 import 'package:altahris_mobile/features/home/presentation/pages/clock_in_page.dart';
 import 'package:altahris_mobile/features/leave/presentation/pages/leave_page.dart';
 import 'package:altahris_mobile/features/payslip/presentation/pages/payslip_page.dart';
-import 'package:altahris_mobile/features/auth/domain/usecases/refresh_token.dart';
-import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/widgets/index.dart';
@@ -40,12 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _onRefresh() async {
-    // 1. Silent Refresh Token
-    try {
-      await sl<RefreshTokenUseCase>().execute();
-    } catch (_) {}
-
-    // 2. Fetch Home Data
+    // Fetch Home Data
     _homeBloc.add(FetchHomeData());
     await _homeBloc.stream.firstWhere((state) => state is! HomeLoading);
   }
@@ -545,9 +538,12 @@ class _DashboardPageState extends State<DashboardPage> {
                       .toList(),
                 );
               } else if (state is HomeFailure) {
-                print('is empty? ');
-
-                return Center(child: Text(state.message));
+                return CustomErrorWidget(
+                  message: state.message,
+                  onRetry: () {
+                    _homeBloc.add(FetchHomeData());
+                  },
+                );
               }
               return const SizedBox();
             },

@@ -4,7 +4,6 @@ import 'package:altahris_mobile/features/auth/data/datasources/auth_remote_data_
 import 'package:altahris_mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:altahris_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:altahris_mobile/features/auth/domain/usecases/login_usecase.dart';
-import 'package:altahris_mobile/features/auth/domain/usecases/refresh_token.dart';
 import 'package:altahris_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 
 /// Dependency Injection for Auth Feature
@@ -20,7 +19,6 @@ void initAuth(GetIt sl) {
 
   // Use Cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
-  sl.registerLazySingleton(() => RefreshTokenUseCase(sl()));
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
@@ -33,7 +31,7 @@ void initAuth(GetIt sl) {
 
   // Data Sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl()),
+    () => AuthRemoteDataSourceImpl(sl(), sl()),
   );
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sl()),

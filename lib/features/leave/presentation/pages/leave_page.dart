@@ -5,7 +5,7 @@ import 'package:altahris_mobile/core/theme/app_colors.dart';
 import '../bloc/leave_bloc.dart';
 import '../bloc/leave_event.dart';
 import '../bloc/leave_state.dart';
-import '../../../../core/widgets/leave_list_tile.dart';
+import '../../../../core/widgets/index.dart';
 import 'request_leave_page.dart';
 
 class LeavePage extends StatefulWidget {
@@ -95,7 +95,10 @@ class _LeavePageState extends State<LeavePage> {
                     ),
                   );
                 } else if (state is LeaveFailure) {
-                  return _buildErrorState(state.message);
+                  return CustomErrorWidget(
+                    message: state.message,
+                    onRetry: _fetchHistory,
+                  );
                 }
                 return const SizedBox.shrink();
               },
@@ -400,37 +403,6 @@ class _LeavePageState extends State<LeavePage> {
             style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 60, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Error: $message',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchHistory,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-              ),
-              child: const Text(
-                'Try Again',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

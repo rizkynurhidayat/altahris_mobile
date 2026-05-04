@@ -2,7 +2,6 @@ import 'package:altahris_mobile/features/home/domain/usecases/clock_in.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/clock_out.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/getEmployee.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/get_attendance.dart';
-import 'package:altahris_mobile/features/auth/domain/usecases/refresh_token.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_event.dart';
 import 'home_state.dart';
@@ -12,19 +11,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetEmployeeMeUseCase getEmployeeMeUseCase;
   final ClockInUseCase clockInUseCase;
   final ClockOutUseCase clockOutUseCase;
-  final RefreshTokenUseCase refreshTokenUseCase;
 
   HomeBloc({
     required this.getAttendanceUseCase,
     required this.getEmployeeMeUseCase,
     required this.clockInUseCase,
     required this.clockOutUseCase,
-    required this.refreshTokenUseCase,
   }) : super(HomeInitial()) {
     on<FetchHomeData>(_onFetchHomeData);
     on<PerformClockIn>(_onPerformClockIn);
     on<PerformClockOut>(_onPerformClockOut);
-    on<RefreshTokenEvent>(_onRefreshToken);
     // Keep FetchAttendance for backward compatibility if needed,
     // but ideally use FetchHomeData
     on<FetchAttendance>((event, emit) => add(FetchHomeData()));
@@ -69,20 +65,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           }
         });
       },
-    );
-  }
-
-  Future<void> _onRefreshToken(
-    RefreshTokenEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    // We don't necessarily emit a loading state here if we want
-    // to do it silently in the background or during pull-to-refresh
-    final result = await refreshTokenUseCase.execute();
-    result.fold(
-      (failure) =>
-          print('--- Background Token Refresh Failed: ${failure.message} ---'),
-      (success) => print('--- Background Token Refresh Success ---'),
     );
   }
 

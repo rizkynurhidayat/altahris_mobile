@@ -6,7 +6,6 @@ class UserModel extends User {
     required super.email,
     required super.name,
     super.token,
-    super.refreshToken,
     super.phone,
     super.address,
     super.role,
@@ -27,7 +26,6 @@ class UserModel extends User {
     String? createdAt,
     String? updatedAt,
     String? token,
-    String? refreshToken,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -40,7 +38,6 @@ class UserModel extends User {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       token: token ?? this.token,
-      refreshToken: refreshToken ?? this.refreshToken,
     );
   }
 
@@ -62,7 +59,6 @@ class UserModel extends User {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       token: json['token'] ?? json['access_token'],
-      refreshToken: json['refresh_token'],
       address: json['address'],
       createdAt: json['created_at'],
       isActive: parseBool(json['is_active']),
@@ -78,7 +74,6 @@ class UserModel extends User {
       'email': email,
       'name': name,
       'token': token,
-      'refresh_token': refreshToken,
       'phone': phone,
       'address': address,
       'role': role,
@@ -87,6 +82,4 @@ class UserModel extends User {
       'updated_at': updatedAt,
     };
   }
-
-  
 }

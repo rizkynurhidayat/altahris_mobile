@@ -145,6 +145,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       } else {
         throw ServerFailure(
           response.data['message'] ?? 'Failed to fetch attendance data',
+          code: response.statusCode ?? 0,
         );
       }
     } on DioException catch (e) {
@@ -155,7 +156,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       final message =
           e.response?.data['message'] ?? e.message ?? 'Server error';
-      throw ServerFailure(message);
+      throw ServerFailure(message, code: e.response?.statusCode ?? 0);
     } catch (e) {
       throw ServerFailure(e.toString());
     }
