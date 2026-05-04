@@ -2,6 +2,7 @@ import 'package:altahris_mobile/features/home/data/datasources/home_local_dataso
 import 'package:dio/dio.dart';
 import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:altahris_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:altahris_mobile/main.dart';
 import 'package:altahris_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
@@ -10,143 +11,120 @@ import 'package:flutter/material.dart';
 class DioClient {
   final Dio dio;
 
-  DioClient() : dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://altahris.com/api',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
-  ) {
-    dio.interceptors.add(QueuedInterceptorsWrapper(
-      onRequest: (options, handler) async {
-        if (options.path.contains('/auth/login')) {
-          return handler.next(options);
-        }
-
-        try {
-          final localDataSource = sl<AuthLocalDataSource>();
-          final user = await localDataSource.getCachedUser();
-          if (user != null && user.token != null) {
-            options.headers['Authorization'] = 'Bearer ${user.token}';
-          }
-        } catch (_) {}
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) async {
-        final responseData = e.response?.data;
-        String message = '';
-        
-        if (responseData is Map) {
-          message = (responseData['message'] ?? '').toString().toLowerCase();
-        } else if (responseData is String) {
-          message = responseData.toLowerCase();
-        } else {
-          message = e.message?.toLowerCase() ?? '';
-        }
-        
-        bool isTokenError = e.response?.statusCode == 401 || 
-                           message.contains('invalid') || 
-                           message.contains('expired') ||
-                           message.contains('unauthenticated') ||
-                           message.contains('token not found');
-
-        if (isTokenError && !e.requestOptions.path.contains('/auth/login')) {
-          // If we are already on the refresh endpoint and it fails, we must logout
-          if (e.requestOptions.path.contains('/auth/refresh')) {
-            print('--- Refresh Token Failed. Redirecting to Login. ---');
-            await _handleLogout();
-            return handler.next(e);
+  DioClient()
+    : dio = Dio(
+        BaseOptions(
+          baseUrl: 'https://altahris.com/api',
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 15),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ),
+      ) {
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          if (options.path.contains('/auth/login') ||
+              options.path.contains('/auth/refresh')) {
+            return handler.next(options);
           }
 
           try {
             final localDataSource = sl<AuthLocalDataSource>();
             final user = await localDataSource.getCachedUser();
-
-            if (user != null) {
-              final currentToken = user.token;
-              final requestToken = e.requestOptions.headers['Authorization']
-                  ?.toString()
-                  .replaceFirst('Bearer ', '');
-
-              // Deduplication: If the token has already been refreshed by another request
-              if (currentToken != null && currentToken != requestToken) {
-                print('--- Token already refreshed by another request. Retrying... ---');
-                return _retryRequest(e.requestOptions, handler);
-              }
-
-              // Notify user 
-              _showNotification("Sesi berakhir. Memperbarui akses Anda...");
-
-              print('--- Attempting to Refresh Token ---');
-              
-              // Perform Refresh Token using a separate Dio instance to avoid interceptor recursion
-              final refreshDio = Dio(BaseOptions(
-                baseUrl: 'https://altahris.com/api',
-                connectTimeout: const Duration(seconds: 15),
-                receiveTimeout: const Duration(seconds: 15),
-              ));
-              
-              final refreshResponse = await refreshDio.post(
-                '/auth/refresh',
-                options: Options(
-                  headers: {
-                    'Authorization': 'Bearer ${user.refreshToken}',
-                    'Accept': 'application/json',
-                  },
-                ),
-              );
-
-              if (refreshResponse.statusCode == 200) {
-                final responseMap = refreshResponse.data;
-                // Handling different potential response structures
-                final dynamic data = responseMap['data'];
-                String? newAccessToken;
-                String? newRefreshToken;
-
-                if (data is Map) {
-                  newAccessToken = data['access_token'] ?? data['token'];
-                  newRefreshToken = data['refresh_token'];
-                }
-
-                if (newAccessToken != null) {
-                  print('--- Token Refreshed Successfully ---');
-                  final updatedUser = user.copyWith(
-                    token: newAccessToken,
-                    refreshToken: newRefreshToken ?? user.refreshToken,
-                  );
-                  await localDataSource.cacheUser(updatedUser);
-                  
-                  // Retry the original request
-                  return _retryRequest(e.requestOptions, handler);
-                }
-              }
+            if (user != null && user.token != null) {
+              options.headers['Authorization'] = 'Bearer ${user.token}';
             }
-          } catch (refreshError) {
-            print('--- Background Refresh Failed: $refreshError ---');
-            await _handleLogout();
-            return handler.next(e);
+          } catch (_) {}
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401 &&
+              !e.requestOptions.path.contains('/auth/login') &&
+              !e.requestOptions.path.contains('/auth/refresh')) {
+            await _handleRefreshToken();
           }
-        }
-        return handler.next(e);
-      },
-    ));
+          return handler.next(e);
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleRefreshToken() async {
+    try {
+      final localDataSource = sl<AuthLocalDataSource>();
+      final remoteDataSource = sl<AuthRemoteDataSource>();
+      final user = await localDataSource.getCachedUser();
+
+      if (user == null || user.token == null) {
+        // await _handleLogout();
+        _showNotification(
+          "No user data, please login first.",
+          isError: true,
+        );
+        return;
+      }
+
+      // 1. Show "Invalid token" notification
+      _showNotification(
+        "Invalid token. Preparing to refresh...",
+        isError: true,
+      );
+
+      // Wait a bit to let the user see the first notification
+      await Future.delayed(const Duration(seconds: 1));
+
+      // 2. Show "Refreshing token" notification
+      _showNotification("Refreshing token...");
+
+      // 3. Get refresh token (try cached first, fallback to static for testing)
+      String? refreshTokenCookie = await localDataSource.getRefreshToken();
+
+      // Fallback to static token provided by user for the current testing phase
+      if (refreshTokenCookie == null) {
+        refreshTokenCookie =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5Mzc0ZmIzNy05YzJhLTQ1Y2QtYmM4Yy04NGUwYmYzYTM1ODUiLCJleHAiOjE3Nzg0NjQxMDksImlhdCI6MTc3Nzg1OTMwOX0.LoO0qcRXu3KvAp20Tu3-bwK5ExNsoUGxBV85e9tRYOY";
+      }
+
+      // 4. Request /auth/refresh
+      final newToken = await remoteDataSource.refreshToken(
+        user.token!,
+        refreshTokenCookie: refreshTokenCookie,
+      );
+
+      // 5. Update token in model and local storage
+      final updatedUser = user.copyWith(token: newToken);
+      await localDataSource.cacheUser(updatedUser);
+
+      // 6. Success notification and instruction
+      _showNotification(
+        "Token refreshed successfully. Please pull down to reload the page.",
+      );
+    } catch (e) {
+      debugPrint('Error during token refresh: $e');
+      // await _handleLogout();
+      _showNotification(
+        "error refreshing token. Please log in again.",
+        isError: true,
+      );
+    }
   }
 
   Future<void> _handleLogout() async {
     try {
       await sl<AuthLocalDataSource>().clearCache();
-      await sl<HomeLocalDataSources>().clearCache();
-      
+      try {
+        await sl<HomeLocalDataSources>().clearCache();
+      } catch (_) {}
+
       if (navigatorKey.currentContext != null) {
         _showNotification(
-          "Sesi Anda telah berakhir. Silakan login kembali.",
+          "Your session has ended. Please log in again.",
           isError: true,
         );
         navigatorKey.currentState!.pushAndRemoveUntil(
@@ -155,7 +133,7 @@ class DioClient {
         );
       }
     } catch (e) {
-      print('Error during logout: $e');
+      debugPrint('Error during logout: $e');
     }
   }
 
@@ -199,37 +177,5 @@ class DioClient {
         duration: Duration(seconds: isError ? 4 : 2),
       ),
     );
-  }
-
-  Future<void> _retryRequest(RequestOptions options, ErrorInterceptorHandler handler) async {
-    try {
-      final localDataSource = sl<AuthLocalDataSource>();
-      final user = await localDataSource.getCachedUser();
-      
-      final retryOptions = Options(
-        method: options.method,
-        headers: options.headers,
-      );
-      
-      if (user != null && user.token != null) {
-        retryOptions.headers?['Authorization'] = 'Bearer ${user.token}';
-      }
-
-      final response = await dio.request(
-        options.path,
-        data: options.data,
-        queryParameters: options.queryParameters,
-        options: retryOptions,
-      );
-      
-      return handler.resolve(response);
-    } catch (e) {
-      if (e is DioException) {
-        return handler.next(e);
-      }
-      return handler.reject(
-        DioException(requestOptions: options, error: e.toString()),
-      );
-    }
   }
 }

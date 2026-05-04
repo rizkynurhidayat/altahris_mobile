@@ -9,5 +9,4 @@ abstract class AuthRepository {
   });
   Future<Either<Failure, User?>> getCachedUser();
   Future<void> logout();
-  Future<Either<Failure, void>> refreshToken();
 }

@@ -32,6 +32,7 @@ class HomeRepositoryImpl implements HomeRepository {
       return Right(result);
     } catch (e) {
       if (e is Failure) return Left(e);
+
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -66,7 +67,7 @@ class HomeRepositoryImpl implements HomeRepository {
         await homeLocalDataSource.cacheEmployee(remoteEmployee);
         employeeMe = remoteEmployee;
       }
-      
+
       await remoteDataSource.clockIn(
         employeeId: employeeMe.id,
         imagePath: imagePath,
@@ -101,12 +102,13 @@ class HomeRepositoryImpl implements HomeRepository {
       final attendances = await remoteDataSource.getAttendance(employeeMe.id);
       final now = DateTime.now();
       final todayStr = DateFormat('yyyy-MM-dd').format(now);
-      
+
       final todayAttendance = attendances.firstWhere(
         (a) => a.date == todayStr || a.clockIn.contains(todayStr),
-        orElse: () => throw const ServerFailure("Today's attendance record not found"),
+        orElse: () =>
+            throw const ServerFailure("Today's attendance record not found"),
       );
-      
+
       await remoteDataSource.clockOut(
         attendanceId: todayAttendance.id,
         employeeId: employeeMe.id,

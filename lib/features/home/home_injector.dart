@@ -18,7 +18,6 @@ void initHome(GetIt sl) {
       getEmployeeMeUseCase: sl(),
       clockInUseCase: sl(),
       clockOutUseCase: sl(),
-      refreshTokenUseCase: sl(),
     ),
   );
 

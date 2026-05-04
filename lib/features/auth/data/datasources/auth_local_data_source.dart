@@ -6,9 +6,12 @@ abstract class AuthLocalDataSource {
   Future<void> cacheUser(UserModel user);
   Future<UserModel?> getCachedUser();
   Future<void> clearCache();
+  Future<void> cacheRefreshToken(String token);
+  Future<String?> getRefreshToken();
 }
 
 const String CACHED_USER = 'CACHED_USER';
+const String REFRESH_TOKEN = 'REFRESH_TOKEN';
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final SharedPreferences sharedPreferences;
@@ -44,5 +47,16 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearCache() async {
     await sharedPreferences.remove(CACHED_USER);
+    await sharedPreferences.remove(REFRESH_TOKEN);
+  }
+
+  @override
+  Future<void> cacheRefreshToken(String token) async {
+    await sharedPreferences.setString(REFRESH_TOKEN, token);
+  }
+
+  @override
+  Future<String?> getRefreshToken() async {
+    return sharedPreferences.getString(REFRESH_TOKEN);
   }
 }

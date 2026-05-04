@@ -11,8 +11,6 @@ class FetchAttendance extends HomeEvent {}
 
 class FetchHomeData extends HomeEvent {}
 
-class RefreshTokenEvent extends HomeEvent {}
-
 class PerformClockIn extends HomeEvent {
   final String imagePath;
   final double latitude;
