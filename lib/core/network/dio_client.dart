@@ -60,10 +60,7 @@ class DioClient {
       final user = await localDataSource.getCachedUser();
 
       if (user == null || user.token == null) {
-        _showNotification(
-          "No user data, please login first.",
-          isError: true,
-        );
+        _showNotification("No user data, please login first.", isError: true);
         return;
       }
 
@@ -100,7 +97,8 @@ class DioClient {
 
       // 6. Success notification and instruction
       _showNotification(
-        "Token refreshed successfully. Please pull down to reload the page.",
+        "Token refreshed successfully. Please refresh the page.",
+        isSuccess: true,
       );
     } catch (e) {
       debugPrint('Error during token refresh: $e');
@@ -111,7 +109,11 @@ class DioClient {
     }
   }
 
-  void _showNotification(String message, {bool isError = false}) {
+  void _showNotification(
+    String message, {
+    bool isError = false,
+    bool isSuccess = false,
+  }) {
     final context = navigatorKey.currentContext;
     if (context == null) return;
 
@@ -120,7 +122,7 @@ class DioClient {
       SnackBar(
         content: Row(
           children: [
-            if (!isError)
+            if (!isError && !isSuccess)
               const SizedBox(
                 width: 18,
                 height: 18,
@@ -129,8 +131,14 @@ class DioClient {
                   color: Colors.white,
                 ),
               )
-            else
-              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            else if (isError)
+              const Icon(Icons.error_outline, color: Colors.white, size: 20)
+            else if (isSuccess)
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.white,
+                size: 20,
+              ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -144,7 +152,11 @@ class DioClient {
             ),
           ],
         ),
-        backgroundColor: isError ? AppColors.error : AppColors.primary,
+        backgroundColor: isError
+            ? AppColors.error
+            : isSuccess
+            ? AppColors.succesGreen
+            : AppColors.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(12),

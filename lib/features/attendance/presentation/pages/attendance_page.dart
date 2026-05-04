@@ -69,25 +69,18 @@ class AttendancePageState extends State<AttendancePage> {
               ),
             );
           } else if (state is AttendanceFailure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: ${state.message}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<AttendanceBloc>().add(FetchAttendanceHistory());
-                    },
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              message: state.message,
+              onRetry: _fetchHistory,
             );
           }
           return const Center(child: Text('Belum ada riwayat'));
         },
       ),
     );
+  }
+
+  void _fetchHistory() {
+    context.read<AttendanceBloc>().add(FetchAttendanceHistory());
   }
 }

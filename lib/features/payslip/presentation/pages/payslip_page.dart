@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/pdf_viewer_page.dart';
+import '../../../../core/widgets/index.dart';
 import '../bloc/payslip_bloc.dart';
 import '../bloc/payslip_event.dart';
 import '../bloc/payslip_state.dart';
@@ -218,18 +218,9 @@ class _PayslipPageState extends State<PayslipPage> {
               ),
             );
           } else if (state is PayslipError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _onRefresh,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              message: state.message,
+              onRetry: _fetchPayslips,
             );
           }
           return const Center(child: Text('No data'));

@@ -538,9 +538,12 @@ class _DashboardPageState extends State<DashboardPage> {
                       .toList(),
                 );
               } else if (state is HomeFailure) {
-                print('is empty? ');
-
-                return Center(child: Text(state.message));
+                return CustomErrorWidget(
+                  message: state.message,
+                  onRetry: () {
+                    _homeBloc.add(FetchHomeData());
+                  },
+                );
               }
               return const SizedBox();
             },
