@@ -170,32 +170,32 @@ class ProfilePage extends StatelessWidget {
           const SizedBox(height: 20),
           
           // Section 2: Settings
-          _buildMenuSection([
-            _buildMenuItem(
-              icon: Icons.security_outlined,
-              title: 'Security',
-              onTap: () {
-                // Placeholder
-              },
-            ),
-            _buildDivider(),
-            _buildMenuItem(
-              icon: Icons.notifications_none_outlined,
-              title: 'Notifications',
-              onTap: () {
-                // Placeholder
-              },
-            ),
-            _buildDivider(),
-            _buildMenuItem(
-              icon: Icons.help_outline,
-              title: 'Help & Support',
-              onTap: () {
-                // Placeholder
-              },
-            ),
-          ]),
-          const SizedBox(height: 20),
+          // _buildMenuSection([
+          //   _buildMenuItem(
+          //     icon: Icons.security_outlined,
+          //     title: 'Security',
+          //     onTap: () {
+          //       // Placeholder
+          //     },
+          //   ),
+          //   _buildDivider(),
+          //   _buildMenuItem(
+          //     icon: Icons.notifications_none_outlined,
+          //     title: 'Notifications',
+          //     onTap: () {
+          //       // Placeholder
+          //     },
+          //   ),
+          //   _buildDivider(),
+          //   _buildMenuItem(
+          //     icon: Icons.help_outline,
+          //     title: 'Help & Support',
+          //     onTap: () {
+          //       // Placeholder
+          //     },
+          //   ),
+          // ]),
+          // const SizedBox(height: 20),
 
           // Section 3: Logout
           _buildMenuSection([
