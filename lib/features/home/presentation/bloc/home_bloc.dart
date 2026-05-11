@@ -1,6 +1,6 @@
 import 'package:altahris_mobile/features/home/domain/usecases/clock_in.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/clock_out.dart';
-import 'package:altahris_mobile/features/home/domain/usecases/getEmployee.dart';
+import 'package:altahris_mobile/features/home/domain/usecases/get_employee.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/get_attendance.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_event.dart';

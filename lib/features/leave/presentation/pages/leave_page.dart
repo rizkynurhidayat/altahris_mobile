@@ -6,6 +6,7 @@ import '../bloc/leave_bloc.dart';
 import '../bloc/leave_event.dart';
 import '../bloc/leave_state.dart';
 import '../../../../core/widgets/index.dart';
+import '../widgets/leave_list_tile.dart';
 import 'request_leave_page.dart';
 
 class LeavePage extends StatefulWidget {

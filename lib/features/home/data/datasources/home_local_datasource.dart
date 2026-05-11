@@ -8,7 +8,7 @@ abstract class HomeLocalDataSources {
   Future<void> clearCache();
 }
 
-const String CACHED_EMPLOYEE = 'CACHED_EMPLOYEE';
+const String cachedEmployee = 'CACHED_EMPLOYEE';
 
 class HomeLocalDataSourcesImpl implements HomeLocalDataSources {
   final SharedPreferences sharedPreferences;
@@ -20,7 +20,7 @@ class HomeLocalDataSourcesImpl implements HomeLocalDataSources {
     try {
       final employeeJson = employee.toJson();
       final jsonString = json.encode(employeeJson);
-      await sharedPreferences.setString(CACHED_EMPLOYEE, jsonString);
+      await sharedPreferences.setString(cachedEmployee, jsonString);
     } catch (e) {
       throw Exception('Failed to cache user: $e');
     }
@@ -29,7 +29,7 @@ class HomeLocalDataSourcesImpl implements HomeLocalDataSources {
   @override
   Future<EmployeeModel?> getCachedEmployee() async {
     try {
-      final jsonString = sharedPreferences.getString(CACHED_EMPLOYEE);
+      final jsonString = sharedPreferences.getString(cachedEmployee);
       if (jsonString != null && jsonString.isNotEmpty) {
         final Map<String, dynamic> userMap = json.decode(jsonString);
         return EmployeeModel.fromJson(userMap);
@@ -43,6 +43,6 @@ class HomeLocalDataSourcesImpl implements HomeLocalDataSources {
 
   @override
   Future<void> clearCache() async {
-    await sharedPreferences.remove(CACHED_EMPLOYEE);
+    await sharedPreferences.remove(cachedEmployee);
   }
 }

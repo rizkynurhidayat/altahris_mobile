@@ -1,7 +1,7 @@
 import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/clock_in.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/clock_out.dart';
-import 'package:altahris_mobile/features/home/domain/usecases/getEmployee.dart';
+import 'package:altahris_mobile/features/home/domain/usecases/get_employee.dart';
 import 'package:altahris_mobile/features/home/domain/usecases/get_attendance.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
 import 'package:get_it/get_it.dart';

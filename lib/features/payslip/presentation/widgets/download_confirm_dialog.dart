@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:altahris_mobile/core/theme/index.dart';
 
 class DownloadConfirmDialog extends StatelessWidget {
   final VoidCallback onConfirm;

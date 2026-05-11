@@ -1,4 +1,4 @@
-import '../../domain/entities/Departement.dart';
+import '../../domain/entities/department.dart';
 import 'company_model.dart';
 
 class DepartmentModel extends Department {

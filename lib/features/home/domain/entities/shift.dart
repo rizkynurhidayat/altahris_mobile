@@ -1,4 +1,4 @@
-import 'package:altahris_mobile/features/home/domain/entities/Company.dart';
+import 'package:altahris_mobile/features/home/domain/entities/company.dart';
 import 'package:equatable/equatable.dart';
 
 class Shift extends Equatable {

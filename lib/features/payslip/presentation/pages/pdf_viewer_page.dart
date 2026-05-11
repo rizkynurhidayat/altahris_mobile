@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import '../theme/app_colors.dart';
-import 'download_confirm_dialog.dart';
-import 'success_dialog.dart';
+import 'package:altahris_mobile/core/theme/index.dart';
+import '../widgets/download_confirm_dialog.dart';
+import 'package:altahris_mobile/core/widgets/index.dart';
 
 class PdfViewerPage extends StatefulWidget {
   final String url;

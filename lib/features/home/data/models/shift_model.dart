@@ -1,4 +1,4 @@
-import '../../domain/entities/Shift.dart';
+import '../../domain/entities/shift.dart';
 import 'company_model.dart';
 
 class ShiftModel extends Shift {

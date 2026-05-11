@@ -1,5 +1,5 @@
 import 'package:altahris_mobile/features/auth/data/models/user_model.dart';
-import '../../domain/entities/Employee.dart';
+import '../../domain/entities/employee.dart';
 import 'company_model.dart';
 import 'department_model.dart';
 import 'position_model.dart';

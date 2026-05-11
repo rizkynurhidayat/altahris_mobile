@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../auth/domain/entities/user.dart';
-import '../../../home/domain/entities/Employee.dart';
+import '../../../home/domain/entities/employee.dart';
 
 class Leave extends Equatable {
   final String id;

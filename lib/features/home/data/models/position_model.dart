@@ -1,4 +1,4 @@
-import '../../domain/entities/Position.dart';
+import '../../domain/entities/position.dart';
 import 'company_model.dart';
 import 'department_model.dart';
 

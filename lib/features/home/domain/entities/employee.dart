@@ -1,10 +1,10 @@
 import 'package:altahris_mobile/features/auth/domain/entities/user.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Company.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Departement.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Position.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Shift.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Grade.dart';
-import 'package:altahris_mobile/features/home/domain/entities/JobLevel.dart';
+import 'package:altahris_mobile/features/home/domain/entities/company.dart';
+import 'package:altahris_mobile/features/home/domain/entities/department.dart';
+import 'package:altahris_mobile/features/home/domain/entities/position.dart';
+import 'package:altahris_mobile/features/home/domain/entities/shift.dart';
+import 'package:altahris_mobile/features/home/domain/entities/grade.dart';
+import 'package:altahris_mobile/features/home/domain/entities/job_level.dart';
 import 'package:equatable/equatable.dart';
 
 class Employee extends Equatable {

@@ -1,26 +1,21 @@
-import 'package:altahris_mobile/features/home/domain/entities/Company.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Departement.dart';
+import 'package:altahris_mobile/features/home/domain/entities/company.dart';
 import 'package:equatable/equatable.dart';
 
-class Position extends Equatable {
-  final int baseSalary;
+class Department extends Equatable {
   final Company company;
   final String companyId;
   final String createdAt;
-  final Department department;
-  final String departmentId;
+  final String description;
   final String id;
   final bool isActive;
   final String name;
   final String updatedAt;
 
-  const Position({
-    required this.baseSalary,
+  const Department({
     required this.company,
     required this.companyId,
     required this.createdAt,
-    required this.department,
-    required this.departmentId,
+    required this.description,
     required this.id,
     required this.isActive,
     required this.name,
@@ -30,12 +25,10 @@ class Position extends Equatable {
   @override
   // TODO: implement props
   List<Object?> get props => [
-    baseSalary,
     company,
     companyId,
     createdAt,
-    department,
-    departmentId,
+    description,
     id,
     isActive,
     name,
@@ -43,17 +36,15 @@ class Position extends Equatable {
   ];
 }
 
+
 /*
-Position.fromJson(Map<String, dynamic> json) {
-    baseSalary = json['base_salary'];
-    company =
-        json['company'] != null ? new Company.fromJson(json['company']) : null;
+ Department.fromJson(Map<String, dynamic> json) {
+    company = json['company'] != null
+        ? new Company.fromJson(json['company'])
+        : null;
     companyId = json['company_id'];
     createdAt = json['created_at'];
-    department = json['department'] != null
-        ? new Department.fromJson(json['department'])
-        : null;
-    departmentId = json['department_id'];
+    description = json['description'];
     id = json['id'];
     isActive = json['is_active'];
     name = json['name'];
@@ -62,16 +53,12 @@ Position.fromJson(Map<String, dynamic> json) {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['base_salary'] = this.baseSalary;
     if (this.company != null) {
       data['company'] = this.company!.toJson();
     }
     data['company_id'] = this.companyId;
     data['created_at'] = this.createdAt;
-    if (this.department != null) {
-      data['department'] = this.department!.toJson();
-    }
-    data['department_id'] = this.departmentId;
+    data['description'] = this.description;
     data['id'] = this.id;
     data['is_active'] = this.isActive;
     data['name'] = this.name;

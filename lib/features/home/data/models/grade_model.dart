@@ -1,4 +1,4 @@
-import '../../domain/entities/Grade.dart';
+import '../../domain/entities/grade.dart';
 
 class GradeModel extends Grade {
   const GradeModel({

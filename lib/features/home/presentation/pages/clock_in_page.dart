@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/utils/permission_handler.dart';
 import 'package:altahris_mobile/core/widgets/success_dialog.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_event.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart';

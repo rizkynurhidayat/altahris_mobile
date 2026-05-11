@@ -1,5 +1,5 @@
 import 'package:altahris_mobile/core/theme/app_colors.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';

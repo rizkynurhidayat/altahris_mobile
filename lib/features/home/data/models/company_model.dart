@@ -1,4 +1,4 @@
-import '../../domain/entities/Company.dart';
+import '../../domain/entities/company.dart';
 
 class CompanyModel extends Company {
   const CompanyModel({

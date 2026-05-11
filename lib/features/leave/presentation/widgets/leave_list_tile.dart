@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
-import '../../features/leave/domain/entities/leave.dart';
+import '../../domain/entities/leave.dart';
 
 class LeaveListTile extends StatelessWidget {
   final Leave leave;

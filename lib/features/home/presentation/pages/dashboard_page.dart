@@ -1,7 +1,7 @@
 import 'package:altahris_mobile/core/utils/permission_handler.dart';
 import 'package:altahris_mobile/features/attendance/presentation/pages/attendance_page.dart';
 import 'package:altahris_mobile/features/auth/domain/entities/user.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_event.dart';
 import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart';
@@ -13,6 +13,7 @@ import 'package:altahris_mobile/features/visit_plan/presentation/pages/visit_pla
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/widgets/index.dart';
+import 'package:altahris_mobile/features/attendance/presentation/widgets/attendance_list_tile.dart';
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';

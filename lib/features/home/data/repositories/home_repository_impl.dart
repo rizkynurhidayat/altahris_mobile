@@ -3,7 +3,7 @@ import 'package:altahris_mobile/features/attendance/domain/entities/attendance.d
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:altahris_mobile/features/home/data/datasources/home_local_datasource.dart';
 import 'package:altahris_mobile/features/home/data/datasources/home_remote_datasource.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:altahris_mobile/features/home/domain/repositories/home_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:intl/intl.dart';

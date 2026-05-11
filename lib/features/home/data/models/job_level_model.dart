@@ -1,4 +1,4 @@
-import '../../domain/entities/JobLevel.dart';
+import '../../domain/entities/job_level.dart';
 
 class JobLevelModel extends JobLevel {
   const JobLevelModel({

@@ -1,5 +1,5 @@
 import 'package:altahris_mobile/core/theme/app_colors.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:altahris_mobile/features/home/presentation/pages/profile_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

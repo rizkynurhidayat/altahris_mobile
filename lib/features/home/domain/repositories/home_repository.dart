@@ -1,5 +1,5 @@
 import 'package:altahris_mobile/features/attendance/domain/entities/attendance.dart';
-import 'package:altahris_mobile/features/home/domain/entities/Employee.dart';
+import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 

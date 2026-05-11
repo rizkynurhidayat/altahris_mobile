@@ -10,8 +10,8 @@ abstract class AuthLocalDataSource {
   Future<String?> getRefreshToken();
 }
 
-const String CACHED_USER = 'CACHED_USER';
-const String REFRESH_TOKEN = 'REFRESH_TOKEN';
+const String cachedUser = 'CACHED_USER';
+const String refreshToken = 'REFRESH_TOKEN';
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final SharedPreferences sharedPreferences;
@@ -23,7 +23,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       final userJson = user.toJson();
       final jsonString = json.encode(userJson);
-      await sharedPreferences.setString(CACHED_USER, jsonString);
+      await sharedPreferences.setString(cachedUser, jsonString);
     } catch (e) {
       throw Exception('Failed to cache user: $e');
     }
@@ -32,7 +32,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<UserModel?> getCachedUser() async {
     try {
-      final jsonString = sharedPreferences.getString(CACHED_USER);
+      final jsonString = sharedPreferences.getString(cachedUser);
       if (jsonString != null && jsonString.isNotEmpty) {
         final Map<String, dynamic> userMap = json.decode(jsonString);
         return UserModel.fromJson(userMap);
@@ -46,17 +46,17 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearCache() async {
-    await sharedPreferences.remove(CACHED_USER);
-    await sharedPreferences.remove(REFRESH_TOKEN);
+    await sharedPreferences.remove(cachedUser);
+    await sharedPreferences.remove(refreshToken);
   }
 
   @override
   Future<void> cacheRefreshToken(String token) async {
-    await sharedPreferences.setString(REFRESH_TOKEN, token);
+    await sharedPreferences.setString(refreshToken, token);
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    return sharedPreferences.getString(REFRESH_TOKEN);
+    return sharedPreferences.getString(refreshToken);
   }
 }
