@@ -8,6 +8,8 @@ import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart'
 import 'package:altahris_mobile/features/home/presentation/pages/clock_in_page.dart';
 import 'package:altahris_mobile/features/leave/presentation/pages/leave_page.dart';
 import 'package:altahris_mobile/features/payslip/presentation/pages/payslip_page.dart';
+import 'package:altahris_mobile/features/visit_plan/presentation/bloc/visit_plan_bloc.dart';
+import 'package:altahris_mobile/features/visit_plan/presentation/pages/visit_plan_page.dart';
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:altahris_mobile/core/widgets/index.dart';
@@ -15,6 +17,7 @@ import 'package:altahris_mobile/features/attendance/domain/entities/attendance.d
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:altahris_mobile/core/di/injection_container.dart';
 
 class DashboardPage extends StatefulWidget {
   final User user;
@@ -439,33 +442,46 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildQuickActions(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 20,
+        runSpacing: 20,
         children: [
-          _buildActionItem('assets/icon/attandance.png', 'Attendance', () {
+          _buildActionItem('assets/icon/attandance.png', null, 'Attendance', () {
             Navigator.of(
               context,
               rootNavigator: true,
             ).push(MaterialPageRoute(builder: (_) => const AttendancePage()));
           }),
-          _buildActionItem('assets/icon/leave.png', 'Leave', () {
+          _buildActionItem('assets/icon/leave.png', null, 'Leave', () {
             Navigator.of(
               context,
               rootNavigator: true,
             ).push(MaterialPageRoute(builder: (_) => const LeavePage()));
           }),
-          _buildActionItem('assets/icon/payslip.png', 'Payslip', () {
+          _buildActionItem('assets/icon/payslip.png', null, 'Payslip', () {
             Navigator.of(
               context,
               rootNavigator: true,
             ).push(MaterialPageRoute(builder: (_) => const PayslipPage()));
+          }),
+          _buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).push(MaterialPageRoute(builder: (_) => const VisitPlanPage()));
           }),
         ],
       ),
     );
   }
 
-  Widget _buildActionItem(String icon, String label, VoidCallback? onTap) {
+  Widget _buildActionItem(
+    String? iconPath,
+    IconData? iconData,
+    String label,
+    VoidCallback? onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -478,7 +494,9 @@ class _DashboardPageState extends State<DashboardPage> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.grey.shade100),
             ),
-            child: Image.asset(icon, scale: 4),
+            child: iconPath != null
+                ? Image.asset(iconPath, scale: 4)
+                : Icon(iconData, size: 32, color: AppColors.primary),
           ),
           const SizedBox(height: 8),
           Text(

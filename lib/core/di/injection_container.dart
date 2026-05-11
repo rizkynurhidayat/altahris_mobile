@@ -6,6 +6,7 @@ import 'package:altahris_mobile/features/home/home_injector.dart';
 import 'package:altahris_mobile/features/payslip/payslip_injector.dart';
 import 'package:altahris_mobile/features/leave/leave_injector.dart';
 import 'package:altahris_mobile/features/notification/notification_injector.dart';
+import 'package:altahris_mobile/features/visit_plan/visit_plan_injector.dart';
 
 final sl = GetIt.instance;
 
@@ -24,4 +25,5 @@ Future<void> init() async {
   initPayslip(sl);
   initLeave(sl);
   initNotification(sl);
+  initVisitPlanInjector();
 }
