@@ -8,7 +8,7 @@ import 'package:altahris_mobile/features/home/presentation/bloc/home_state.dart'
 import 'package:altahris_mobile/features/home/presentation/pages/clock_in_page.dart';
 import 'package:altahris_mobile/features/leave/presentation/pages/leave_page.dart';
 import 'package:altahris_mobile/features/payslip/presentation/pages/payslip_page.dart';
-import 'package:altahris_mobile/features/visit_plan/presentation/bloc/visit_plan_bloc.dart';
+import 'package:altahris_mobile/features/visit/presentation/pages/visit_page.dart';
 import 'package:altahris_mobile/features/visit_plan/presentation/pages/visit_plan_page.dart';
 import 'package:flutter/material.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
@@ -18,7 +18,6 @@ import 'package:altahris_mobile/features/attendance/domain/entities/attendance.d
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:altahris_mobile/core/di/injection_container.dart';
 
 class DashboardPage extends StatefulWidget {
   final User user;
@@ -466,13 +465,19 @@ class _DashboardPageState extends State<DashboardPage> {
               rootNavigator: true,
             ).push(MaterialPageRoute(builder: (_) => const PayslipPage()));
           }),
-          _buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).push(MaterialPageRoute(builder: (_) => const VisitPlanPage()));
-          }),
-        ],
+_buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
+             Navigator.of(
+               context,
+               rootNavigator: true,
+             ).push(MaterialPageRoute(builder: (_) => const VisitPlanPage()));
+           }),
+           _buildActionItem(null, Icons.location_on_outlined, 'Visit', () {
+             Navigator.of(
+               context,
+               rootNavigator: true,
+             ).push(MaterialPageRoute(builder: (_) => const VisitPage()));
+           }),
+         ],
       ),
     );
   }

@@ -35,6 +35,10 @@ class _VisitPlanPageState extends State<VisitPlanPage> {
             foregroundColor: AppColors.textPrimary,
             centerTitle: true,
             elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: BlocBuilder<VisitPlanBloc, VisitPlanState>(
             builder: (context, state) {

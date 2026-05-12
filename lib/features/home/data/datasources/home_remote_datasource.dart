@@ -48,7 +48,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         'lat': latitude,
         'lng': longitude,
         'notes': notes,
-        'image': 'data:image/jpeg;base64,$base64Image',
+        // 'image': 'data:image/jpeg;base64,$base64Image',
+        'photo': 'data:image/jpeg;base64,$base64Image',
       });
 
       final response = await dio.post(
@@ -90,7 +91,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         'lat': latitude,
         'lng': longitude,
         'notes': notes,
-        'image': 'data:image/jpeg;base64,$base64Image',
+        // 'image': 'data:image/jpeg;base64,$base64Image',
+        'photo': 'data:image/jpeg;base64,$base64Image',
       });
       final response = await dio.put(
         '/attendances/$attendanceId/clock-out',
