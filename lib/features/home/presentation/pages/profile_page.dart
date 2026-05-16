@@ -1,5 +1,8 @@
 import 'package:altahris_mobile/core/theme/app_colors.dart';
+import 'package:altahris_mobile/core/widgets/logout_confirm_dialog.dart';
 import 'package:altahris_mobile/features/home/domain/entities/employee.dart';
+import 'package:altahris_mobile/features/home/presentation/bloc/home_bloc.dart';
+import 'package:altahris_mobile/features/home/presentation/bloc/home_event.dart';
 import 'package:altahris_mobile/features/home/presentation/pages/profile_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,13 +35,19 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background, // Light grey background like in the image
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            const SizedBox(height: 24),
-            _buildMenuList(context),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<HomeBloc>().add(const FetchHomeData(isRefresh: true));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 24),
+              _buildMenuList(context),
+            ],
+          ),
         ),
       ),
     );
@@ -280,28 +289,15 @@ class ProfilePage extends StatelessWidget {
   }
 
   void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Logout', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to logout?', style: GoogleFonts.poppins()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<AuthBloc>().add(LogoutRequested());
-              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            },
-            child: Text('Logout', style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+    LogoutConfirmDialog.show(
+      context,
+      onConfirm: () {
+        context.read<AuthBloc>().add(LogoutRequested());
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+        );
+      },
     );
   }
 }

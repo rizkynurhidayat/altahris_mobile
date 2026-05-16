@@ -50,8 +50,17 @@ class _VisitPlanPageState extends State<VisitPlanPage> {
                       .read<VisitPlanBloc>()
                       .add(FetchVisitPlansEvent(_employeeId)),
                   child: state.visitPlans.isEmpty
-                      ? const Center(child: Text('No visit plans found'))
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: const Center(child: Text('No visit plans found')),
+                            ),
+                          ],
+                        )
                       : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(16),
                           itemCount: state.visitPlans.length,
                           itemBuilder: (context, index) {

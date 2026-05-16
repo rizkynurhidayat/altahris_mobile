@@ -8,7 +8,7 @@ class GetEmployeeMeUseCase {
 
   GetEmployeeMeUseCase(this.repository);
 
-  Future<Either<Failure, Employee>> execute() async {
-    return await repository.getEmployeeMe();
+  Future<Either<Failure, Employee>> execute({bool refresh = false}) async {
+    return await repository.getEmployeeMe(refresh: refresh);
   }
 }

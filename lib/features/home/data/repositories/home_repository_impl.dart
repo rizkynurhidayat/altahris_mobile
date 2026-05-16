@@ -38,11 +38,13 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<Either<Failure, Employee>> getEmployeeMe() async {
+  Future<Either<Failure, Employee>> getEmployeeMe({bool refresh = false}) async {
     try {
-      final cachedEmployee = await homeLocalDataSource.getCachedEmployee();
-      if (cachedEmployee != null) {
-        return Right(cachedEmployee);
+      if (!refresh) {
+        final cachedEmployee = await homeLocalDataSource.getCachedEmployee();
+        if (cachedEmployee != null) {
+          return Right(cachedEmployee);
+        }
       }
       final result = await remoteDataSource.getEmployeeMe();
       await homeLocalDataSource.cacheEmployee(result);

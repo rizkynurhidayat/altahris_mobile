@@ -49,30 +49,24 @@ class _NotificationPageState extends State<NotificationPage> {
             if (state is NotificationLoading) {
               return const Center(child: CircularProgressIndicator());
             } else if (state is NotificationLoaded) {
-              if (state.notifications.isEmpty) {
-                return const Center(child: Text('No notifications yet'));
-              }
               return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.only(top:16, bottom: 100, left: 16, right: 16),
-                  child: Column(
-                    children: List.generate(state.notifications.length, (index) {
-                      return NotificationListTile(
-                        notification: state.notifications[index],
-                      );
-                    }),
-                  ),
+                  padding: const EdgeInsets.only(top: 16, bottom: 100, left: 16, right: 16),
+                  child: state.notifications.isEmpty
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: const Center(child: Text('No notifications yet')),
+                        )
+                      : Column(
+                          children: List.generate(state.notifications.length, (index) {
+                            return NotificationListTile(
+                              notification: state.notifications[index],
+                            );
+                          }),
+                        ),
                 ),
               );
-              // return ListView.builder(
-              //   padding: const EdgeInsets.all(16),
-              //   itemCount: state.notifications.length,
-              //   itemBuilder: (context, index) {
-              //     return NotificationListTile(
-              //       notification: state.notifications[index],
-              //     );
-              //   },
-              // );
             } else if (state is NotificationError) {
               return Center(
                 child: Column(

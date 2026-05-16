@@ -9,7 +9,14 @@ abstract class HomeEvent extends Equatable {
 
 class FetchAttendance extends HomeEvent {}
 
-class FetchHomeData extends HomeEvent {}
+class FetchHomeData extends HomeEvent {
+  final bool isRefresh;
+
+  const FetchHomeData({this.isRefresh = false});
+
+  @override
+  List<Object?> get props => [isRefresh];
+}
 
 class PerformClockIn extends HomeEvent {
   final String imagePath;

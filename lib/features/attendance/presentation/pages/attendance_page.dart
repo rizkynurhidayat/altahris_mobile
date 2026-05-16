@@ -46,12 +46,6 @@ class AttendancePageState extends State<AttendancePage> {
           icon: const Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: AppColors.primary),
-            onPressed: _fetchHistory,
-          ),
-        ],
       ),
       body: Column(
         children: [

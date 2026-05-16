@@ -33,7 +33,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(HomeLoading());
 
     // 1. Get Employee first
-    final employeeResult = await getEmployeeMeUseCase.execute();
+    final employeeResult = await getEmployeeMeUseCase.execute(
+      refresh: event.isRefresh,
+    );
 
     await employeeResult.fold(
       (failure) async {
