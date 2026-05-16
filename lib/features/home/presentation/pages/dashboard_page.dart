@@ -447,37 +447,55 @@ class _DashboardPageState extends State<DashboardPage> {
         spacing: 20,
         runSpacing: 20,
         children: [
-          _buildActionItem('assets/icon/attandance.png', null, 'Attendance', () {
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).push(MaterialPageRoute(builder: (_) => const AttendancePage()));
-          }),
-          _buildActionItem('assets/icon/leave.png', null, 'Leave', () {
+          _buildActionItem(
+            'assets/icon/attandance.png',
+            null,
+            null,
+            'Attendance',
+            () {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).push(MaterialPageRoute(builder: (_) => const AttendancePage()));
+            },
+          ),
+          _buildActionItem('assets/icon/leave.png', null, null, 'Leave', () {
             Navigator.of(
               context,
               rootNavigator: true,
             ).push(MaterialPageRoute(builder: (_) => const LeavePage()));
           }),
-          _buildActionItem('assets/icon/payslip.png', null, 'Payslip', () {
+          _buildActionItem(
+            'assets/icon/payslip.png',
+            null,
+            null,
+            'Payslip',
+            () {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).push(MaterialPageRoute(builder: (_) => const PayslipPage()));
+            },
+          ),
+          _buildActionItem(
+            'assets/icon/visit-plan.png',
+            null,
+            8,
+            'Visit Plan',
+            () {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).push(MaterialPageRoute(builder: (_) => const VisitPlanPage()));
+            },
+          ),
+          _buildActionItem('assets/icon/visit.png', null, 8, 'Visit', () {
             Navigator.of(
               context,
               rootNavigator: true,
-            ).push(MaterialPageRoute(builder: (_) => const PayslipPage()));
+            ).push(MaterialPageRoute(builder: (_) => const VisitPage()));
           }),
-_buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
-             Navigator.of(
-               context,
-               rootNavigator: true,
-             ).push(MaterialPageRoute(builder: (_) => const VisitPlanPage()));
-           }),
-           _buildActionItem(null, Icons.location_on_outlined, 'Visit', () {
-             Navigator.of(
-               context,
-               rootNavigator: true,
-             ).push(MaterialPageRoute(builder: (_) => const VisitPage()));
-           }),
-         ],
+        ],
       ),
     );
   }
@@ -485,6 +503,7 @@ _buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
   Widget _buildActionItem(
     String? iconPath,
     IconData? iconData,
+    double? scale,
     String label,
     VoidCallback? onTap,
   ) {
@@ -501,7 +520,7 @@ _buildActionItem(null, Icons.map_outlined, 'Visit Plan', () {
               border: Border.all(color: Colors.grey.shade100),
             ),
             child: iconPath != null
-                ? Image.asset(iconPath, scale: 4)
+                ? Image.asset(iconPath, scale: scale ?? 4)
                 : Icon(iconData, size: 32, color: AppColors.primary),
           ),
           const SizedBox(height: 8),

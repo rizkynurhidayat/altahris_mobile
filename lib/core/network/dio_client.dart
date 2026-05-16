@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:altahris_mobile/core/di/injection_container.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:altahris_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:altahris_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:altahris_mobile/main.dart';
 import 'package:altahris_mobile/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -102,9 +103,21 @@ class DioClient {
       );
     } catch (e) {
       debugPrint('Error during token refresh: $e');
+
+      // 1. Clear all local data
+      final localDataSource = sl<AuthLocalDataSource>();
+      await localDataSource.clearAllData();
+
+      // 2. Show notification
       _showNotification(
         "error refreshing token. Please log in again.",
         isError: true,
+      );
+
+      // 3. Redirect to login
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
       );
     }
   }

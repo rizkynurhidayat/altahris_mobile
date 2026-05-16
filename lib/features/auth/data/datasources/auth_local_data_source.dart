@@ -6,6 +6,7 @@ abstract class AuthLocalDataSource {
   Future<void> cacheUser(UserModel user);
   Future<UserModel?> getCachedUser();
   Future<void> clearCache();
+  Future<void> clearAllData();
   Future<void> cacheRefreshToken(String token);
   Future<String?> getRefreshToken();
 }
@@ -48,6 +49,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearCache() async {
     await sharedPreferences.remove(cachedUser);
     await sharedPreferences.remove(refreshToken);
+  }
+
+  @override
+  Future<void> clearAllData() async {
+    await sharedPreferences.clear();
   }
 
   @override
